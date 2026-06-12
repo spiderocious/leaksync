@@ -54,10 +54,12 @@ class _ComposeScreenState extends State<ComposeScreen> {
     final file = await _picker.pickMedia();
     if (file != null) {
       final bytes = await file.readAsBytes();
-      if (mounted) setState(() {
-        _picked = file;
-        _previewBytes = bytes;
-      });
+      if (mounted) {
+        setState(() {
+          _picked = file;
+          _previewBytes = bytes;
+        });
+      }
     }
   }
 

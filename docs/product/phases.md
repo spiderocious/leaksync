@@ -250,7 +250,7 @@ riskiest assumption in the whole product.
 
 ---
 
-## Phase 7 — Android: real send flow + pairing + recent
+## Phase 7 — Android: real send flow + pairing + recent ✅ DONE
 
 **Goal:** finish the Android app against the real backend.
 
@@ -263,9 +263,28 @@ riskiest assumption in the whole product.
 **Surfaces:** Android + backend.
 
 **Done when:**
-- [ ] One-tap share lands on the Mac for text, url, and image.
-- [ ] Pairing works end-to-end from a fresh install.
-- [ ] Recent list and unpair work.
+- [x] One-tap share lands on the Mac for text, url, and image (real POST + image
+      upload via the file-service).
+- [x] Pairing works end-to-end (redeem 6-digit code → device JWT persisted).
+- [x] Recent list (GET /items/recent, pull-to-refresh) and unpair work.
+
+> **Delivered & integration-verified.** `apps/mobile-app` is now wired to the
+> backend: `lib/data/api_client.dart` (redeem/send/recent/unpair, envelope +
+> typed `ApiException`), `lib/data/file_service.dart` (upload bytes → fileKey),
+> and an async `AppState` that persists the device JWT via `shared_preferences`.
+> Screens updated: pairing redeems with loading + error states; compose awaits
+> the real send (text/url + image upload) with busy/snackbar; the share sheet
+> POSTs for real (Sending → Sent ✓ / failed); home loads recent with
+> pull-to-refresh; settings has real unpair + a **Server URL override**.
+>
+> **Web target enabled** (per the localhost-on-phone constraint — test in Chrome
+> first). API base is configurable: Settings override → `--dart-define
+> LEAKSYNC_API_BASE` → localhost default. `flutter analyze` clean · **web build
+> ✅ · Android APK ✅**. Verified the full app-shaped round-trip over HTTP against
+> the live backend (mac code → redeem → send text → recent) **and CORS preflight
+> for a web origin**. See [apps/mobile-app/README.md](../../apps/mobile-app/README.md).
+> Hosting the backend reachably from a physical phone (LAN IP / ngrok / tunnel)
+> is the user's call — the app just needs the URL.
 
 ---
 

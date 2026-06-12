@@ -11,6 +11,7 @@ export interface PersistedState {
   macName?: string;
   userName?: string;
   lastSeq?: number; // poll cursor
+  sessionCode?: string; // the 6-digit code that started this pairing session
 }
 
 const file = (): string => join(app.getPath('userData'), 'leaksync.json');

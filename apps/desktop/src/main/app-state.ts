@@ -46,6 +46,7 @@ class AppStateManager extends EventEmitter {
       conn: this.conn,
       items: this.items,
       pairingCode: this.pairingCode,
+      sessionCode: s.sessionCode ?? null, // the code that started this session
     };
   }
 
@@ -58,6 +59,7 @@ class AppStateManager extends EventEmitter {
     const userName = store.read().userName || defaultUserName();
     const result = await api.createPairCode(macName, userName);
     this.pairingCode = result.pairingCode;
+    store.write({ sessionCode: result.pairingCode }); // remember it for the logout modal
     this.items = [];
     this.emitChanged();
     transport.start();
@@ -65,6 +67,15 @@ class AppStateManager extends EventEmitter {
     // code so the UI flips to the item list.
     void this.watchForPairing();
     return { pairingCode: result.pairingCode };
+  }
+
+  /// Mint a fresh code, abandoning any stale/consumed/orphaned pair. Used by the
+  /// "New code" button and when a stale code is detected.
+  async regenerateCode(): Promise<{ pairingCode: string }> {
+    transport.stop();
+    store.clear(); // drop the dead token/pairId so createPairCode starts clean
+    this.pairingCode = null;
+    return this.createPairCode();
   }
 
   async refresh(): Promise<void> {

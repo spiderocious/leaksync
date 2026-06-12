@@ -11,13 +11,18 @@ body,
   margin: 0;
 }
 
-/* The popup is a floating sheet on a transparent window — let the rounded
-   MenuBarPopup card define the visible surface. */
+/* The popup fills the whole (opaque) window edge-to-edge — the paper sheet IS
+   the window surface, no floating card / outer gap. */
 body {
-  background: transparent;
+  background: var(--sheet);
   color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
   user-select: none;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
 }

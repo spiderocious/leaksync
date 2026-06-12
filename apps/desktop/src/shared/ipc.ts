@@ -14,6 +14,7 @@ export interface AppState {
   conn: ConnState; // live = WS open, polling = backoff, idle = not connected
   items: Item[]; // last 5, newest first
   pairingCode: string | null; // shown until an Android device redeems it
+  sessionCode: string | null; // the code that started this session (for the logout modal)
 }
 
 // Renderer → main intents (invoke, returns a value).
@@ -21,6 +22,8 @@ export interface IpcApi {
   getState: () => Promise<AppState>;
   createPairCode: () => Promise<{ pairingCode: string }>;
   refresh: () => Promise<void>;
+  // Mint a fresh pairing code (recovers from a consumed/orphaned/expired code).
+  regenerateCode: () => Promise<{ pairingCode: string }>;
   unpair: () => Promise<void>;
   copyItem: (itemId: string) => Promise<void>;
   // Returns a short-lived local file path for an image item, for drag-out.
@@ -34,6 +37,7 @@ export const IPC = {
   // invoke (renderer → main → value)
   GET_STATE: 'state:get',
   CREATE_CODE: 'pair:create-code',
+  REGEN_CODE: 'pair:regen-code',
   REFRESH: 'items:refresh',
   UNPAIR: 'pair:unpair',
   COPY_ITEM: 'item:copy',

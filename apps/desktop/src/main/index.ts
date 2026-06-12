@@ -73,6 +73,7 @@ app.on('window-all-closed', () => {
 const registerIpc = (): void => {
   ipcMain.handle(IPC.GET_STATE, () => appState.snapshot());
   ipcMain.handle(IPC.CREATE_CODE, () => appState.createPairCode());
+  ipcMain.handle(IPC.REGEN_CODE, () => appState.regenerateCode());
   ipcMain.handle(IPC.REFRESH, () => appState.refresh());
   ipcMain.handle(IPC.UNPAIR, () => appState.unpair());
 

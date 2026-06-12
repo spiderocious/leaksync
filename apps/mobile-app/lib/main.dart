@@ -2,15 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart' show XFile;
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
-import 'models/item.dart';
 import 'screens/about_screen.dart';
 import 'screens/compose_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/pair_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/share_screen.dart';
+import 'screens/splash_screen.dart';
 import 'state/app_scope.dart';
 import 'state/app_state.dart';
 import 'theme/tokens.dart';
@@ -79,21 +80,21 @@ class _LeakSyncAppState extends State<LeakSyncApp> {
         switch (f.type) {
           case SharedMediaType.image:
           case SharedMediaType.video:
-            final xfile = XFile(f.path);
-            final bytes = await xfile.readAsBytes();
+            final bytes = await XFile(f.path).readAsBytes();
             await state.sendImage(
               bytes,
-              filename: f.fileName ?? f.path.split('/').last,
+              filename: f.path.split('/').last,
               mime: f.mimeType,
             );
             break;
           case SharedMediaType.text:
           case SharedMediaType.url:
-            await state.sendText((f.text ?? f.path).trim());
+            // For text/url, `path` carries the shared text/url itself.
+            await state.sendText(f.path.trim());
             break;
           case SharedMediaType.file:
             // A non-media file: send its name as text (v1 scope = text/url/image).
-            await state.sendText(f.fileName ?? f.path.split('/').last);
+            await state.sendText(f.path.split('/').last);
             break;
         }
       }
@@ -105,8 +106,9 @@ class _LeakSyncAppState extends State<LeakSyncApp> {
 
   GoRouter _buildRouter() {
     return GoRouter(
-      initialLocation: '/',
+      initialLocation: '/splash',
       routes: [
+        GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
         GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
         GoRoute(path: '/pair', builder: (context, state) => const PairScreen()),
         GoRoute(

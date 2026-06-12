@@ -5,7 +5,9 @@
   "type": "module",
   "main": "out/main/index.cjs",
   "scripts": {
+    "predev": "pkill -9 -f 'leaksync.*[Ee]lectron' || true",
     "dev": "env -u ELECTRON_RUN_AS_NODE electron-vite dev",
+    "kill": "pkill -9 -f 'leaksync.*[Ee]lectron' || true",
     "build": "electron-vite build",
     "start": "env -u ELECTRON_RUN_AS_NODE electron-vite preview",
     "package": "electron-vite build && electron-builder --mac --dir",

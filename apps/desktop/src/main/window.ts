@@ -18,7 +18,12 @@ export const createPopup = (): BrowserWindow => {
     fullscreenable: false,
     skipTaskbar: true,
     movable: false,
-    transparent: true,
+    // Opaque paper background so the flush popup fills the window edge-to-edge
+    // (no transparent gap around a floating card). macOS rounds the corners.
+    transparent: false,
+    backgroundColor: '#edebe6', // --sheet
+    roundedCorners: true,
+    hasShadow: true,
     webPreferences: {
       preload: path.join(dirname, '../preload/index.cjs'),
       sandbox: false,

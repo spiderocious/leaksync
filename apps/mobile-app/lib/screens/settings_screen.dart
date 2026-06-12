@@ -7,20 +7,48 @@ import '../ui/app_button.dart';
 import '../ui/app_text.dart';
 import '../ui/screen_scaffold.dart';
 
-/// Settings — ported from packages/ui SettingsScene. There is exactly one
-/// setting (unpair) and a link to the About page. The screen's job is to be
-/// honest about how little there is.
-class SettingsScreen extends StatelessWidget {
+/// Settings — the one real setting (unpair), the API-server override (so you can
+/// point at a LAN IP / tunnel for a physical device), and the About link.
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  Future<void> _editServer() async {
+    final state = AppScope.of(context);
+    final controller = TextEditingController(text: state.apiBase);
+    final next = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.sheet,
+        title: const AppText('Backend URL', variant: AppTextVariant.read, fontSize: 16),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType: TextInputType.url,
+          decoration: const InputDecoration(hintText: 'http://localhost:9090/api/v1'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (next != null && next.isNotEmpty) {
+      await state.setApiBase(next);
+      if (mounted) setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final state = AppScope.of(context);
-    final rows = <(String, String)>[
-      ('Paired with', state.macName),
-      ('Direction', 'Phone → Mac'),
-      ('Version', '0.1.0'),
-    ];
 
     return ScreenScaffold(
       child: Column(
@@ -41,22 +69,15 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
           ),
-          for (var i = 0; i < rows.length; i++)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: i == rows.length - 1 ? Colors.transparent : AppColors.hair),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  AppText(rows[i].$1, variant: AppTextVariant.read, fontSize: 13.5),
-                  AppText(rows[i].$2, variant: AppTextVariant.mono, fontSize: 11, color: AppColors.ink3),
-                ],
-              ),
-            ),
+          _row('Paired with', state.macName.isEmpty ? '—' : state.macName),
+          _row('Direction', 'Phone → Mac'),
+          _row('Version', '0.1.0'),
+          // Tappable server row — paste a LAN IP / tunnel URL for a real device.
+          GestureDetector(
+            onTap: _editServer,
+            behavior: HitTestBehavior.opaque,
+            child: _row('Server', state.apiBase, last: true, tappable: true),
+          ),
           const SizedBox(height: 22),
           Container(
             width: double.infinity,
@@ -68,12 +89,42 @@ class SettingsScreen extends StatelessWidget {
           ),
           const Spacer(),
           Center(
-            child: AppButton('Unpair this device', variant: AppButtonVariant.danger, onPressed: () {
-              state.unpair();
-              context.go('/pair');
+            child: AppButton('Unpair this device', variant: AppButtonVariant.danger, onPressed: () async {
+              await state.unpair();
+              if (context.mounted) context.go('/pair');
             }),
           ),
           const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+
+  Widget _row(String k, String v, {bool last = false, bool tappable = false}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: last ? Colors.transparent : AppColors.hair)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          AppText(k, variant: AppTextVariant.read, fontSize: 13.5),
+          const SizedBox(width: 16),
+          Expanded(
+            child: AppText(
+              v,
+              variant: AppTextVariant.mono,
+              fontSize: 11,
+              color: tappable ? AppColors.moss : AppColors.ink3,
+              maxLines: 1,
+              textAlign: TextAlign.right,
+            ),
+          ),
+          if (tappable) ...[
+            const SizedBox(width: 6),
+            const Icon(Icons.edit_outlined, size: 13, color: AppColors.moss),
+          ],
         ],
       ),
     );

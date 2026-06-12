@@ -7,7 +7,7 @@ import 'api_client.dart' show ApiException;
 
 /// Uploads image/video bytes to the external file-service and returns the
 /// permanent `key`. The flow (per the file-service doc):
-///   1. GET /get-upload-uri?ext=<ext>  → { key, uri }
+///   1. GET `/get-upload-uri?ext=...`  → `{ key, uri }`
 ///   2. PUT bytes directly to `uri`   (straight to storage, not through us)
 ///   3. send the `key` to our backend
 ///

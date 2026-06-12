@@ -7,6 +7,7 @@ import { IPC, type AppState, type LeakSyncBridge } from '../shared/ipc.js';
 const bridge: LeakSyncBridge = {
   getState: () => ipcRenderer.invoke(IPC.GET_STATE),
   createPairCode: () => ipcRenderer.invoke(IPC.CREATE_CODE),
+  regenerateCode: () => ipcRenderer.invoke(IPC.REGEN_CODE),
   refresh: () => ipcRenderer.invoke(IPC.REFRESH),
   unpair: () => ipcRenderer.invoke(IPC.UNPAIR),
   copyItem: (itemId) => ipcRenderer.invoke(IPC.COPY_ITEM, itemId),
