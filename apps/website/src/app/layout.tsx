@@ -4,8 +4,9 @@ import type { ReactNode } from 'react';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'LeakSync',
-  description: 'Share anything from your phone to your Mac, instantly.',
+  title: 'LeakSync — your phone to your Mac, in one tap',
+  description:
+    'Send a tweet, a photo or a link from any Android app to your Mac menu bar within a second. Pair once with a 6-digit code. No accounts.',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -5,7 +5,7 @@ import { store } from './store.js';
 // Backend HTTP client for the main process. Uses Node's global fetch. The Mac is
 // always the `mac` device; its token comes from /pair/code and is persisted.
 
-const BASE = process.env['LEAKSYNC_API_BASE'] ?? 'http://localhost:9090/api/v1';
+const BASE = process.env['LEAKSYNC_API_BASE'] ?? 'https://leaksync.up.railway.app/api/v1';
 const FILE_SERVICE =
   process.env['LEAKSYNC_FILE_SERVICE'] ?? 'https://go-file-service-production.up.railway.app';
 

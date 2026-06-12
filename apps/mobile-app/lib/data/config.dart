@@ -11,7 +11,7 @@
 
 const String kApiBaseDefine = String.fromEnvironment(
   'LEAKSYNC_API_BASE',
-  defaultValue: 'http://localhost:9090/api/v1',
+  defaultValue: 'https://leaksync.up.railway.app/api/v1',
 );
 
 const String kFileServiceDefine = String.fromEnvironment(

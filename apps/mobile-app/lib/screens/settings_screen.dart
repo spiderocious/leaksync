@@ -29,7 +29,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           controller: controller,
           autofocus: true,
           keyboardType: TextInputType.url,
-          decoration: const InputDecoration(hintText: 'http://localhost:9090/api/v1'),
+          decoration: const InputDecoration(hintText: 'https://leaksync.up.railway.app/api/v1'),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),

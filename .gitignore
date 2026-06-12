@@ -23,3 +23,5 @@ out
 .idea
 .vscode/*
 !.vscode/extensions.json
+
+apps/desktop/release
