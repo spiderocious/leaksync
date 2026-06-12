@@ -42,10 +42,6 @@ phase builds on the right names.
 - [x] `pnpm exec nx run-many -t typecheck` passes.
 - [x] `pnpm exec nx run-many -t build` passes.
 
-> Also done out-of-band: **portless `pdev` targets** wired for every app
-> (`portless.json`, per-app `pdev` Nx target, `*.leaksync.localhost`). See
-> [docs/run.md](../run.md) "Portless / pdev".
-
 ---
 
 ## Phase 2 — Design-system preview page (scaffold only) ✅ DONE

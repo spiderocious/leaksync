@@ -26,10 +26,6 @@ not a fresh template — build features directly.**
   returning a new item resets back to WebSocket. Manual Refresh always available.
   Android never holds a socket — it only POSTs. Mac registers launch-on-login.
 - **Auth:** no accounts. 6-digit pairing code → long-lived per-device bearer tokens.
-- **Portless base:** `portless.json` names apps `<app>.leaksync` (served at
-  `https://web.leaksync.localhost`, `api.leaksync.localhost`, …) via each app's
-  `pdev` Nx target. If the product is renamed, change the base in `portless.json`
-  **and** update the matching `pdev` commands in each `apps/*/project.json`.
 
 The `auth` and `health` backend features, the request/envelope/error middleware,
 the typed `api` client, and the `ui` primitives are reusable scaffolding — keep

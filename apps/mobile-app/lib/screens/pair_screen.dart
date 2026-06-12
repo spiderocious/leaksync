@@ -49,7 +49,7 @@ class _PairScreenState extends State<PairScreen> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = 'Couldn’t reach your Mac. Is the backend running?';
+          _error = 'Something went wrong. Please try again.';
         });
       }
     }
