@@ -19,3 +19,44 @@ export interface Item {
   createdAt: string; // ISO 8601
   seqId: number; // monotonic per-pair cursor, used by Mac polling
 }
+
+// ---------- Pairing ----------
+
+export interface PairDevice {
+  platform: DevicePlatform;
+  deviceName: string;
+  pairedAt: string; // ISO 8601
+}
+
+// The pairing relationship between one Mac and one Android device.
+export interface Pair {
+  pairId: string;
+  macName: string;
+  userName: string;
+  devices: PairDevice[];
+  paired: boolean; // true once both devices are present
+}
+
+// Response from POST /pair/code — the Mac creates a pair and gets its token.
+export interface PairCodeResult {
+  pairId: string;
+  pairingCode: string; // 6 digits
+  expiresAt: string; // ISO 8601
+  deviceToken: string; // the Mac's long-lived JWT
+}
+
+// Response from POST /pair/redeem — the Android device joins the pair.
+export interface PairRedeemResult {
+  pairId: string;
+  deviceToken: string; // the Android device's long-lived JWT
+  macName: string;
+  userName: string;
+}
+
+// ---------- Realtime push (Mac WebSocket) ----------
+
+// Messages the server pushes down the Mac's socket.
+export type WsServerMessage =
+  | { type: 'item'; item: Item }
+  | { type: 'hello'; pairId: string }
+  | { type: 'closing'; reason: 'ttl' }; // server closing the 5-min socket; client should poll

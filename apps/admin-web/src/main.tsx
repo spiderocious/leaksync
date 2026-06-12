@@ -14,7 +14,7 @@ import '@leaksync/ui/styles.css';
 import { App } from './app';
 import './styles.css';
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8081';
+const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:9090';
 configureApiClient(baseUrl);
 
 const rootEl = document.getElementById('root');
