@@ -12,6 +12,9 @@
       "edgeToEdgeEnabled": true,
       "permissions": ["READ_MEDIA_IMAGES", "READ_MEDIA_VIDEO"]
     },
+    "ios": {
+      "bundleIdentifier": "com.leaksync.app"
+    },
     "plugins": [
       "expo-router",
       "expo-font",

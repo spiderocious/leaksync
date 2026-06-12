@@ -143,6 +143,20 @@ riskiest assumption in the whole product.
       the app and is correctly read.
 - [ ] **You confirm on your device.** ← explicit human checkpoint; we stop here.
 
+> **🔨 UI BUILT — awaiting on-device test.** `apps/mobile` is an Expo SDK 55
+> (dev-build) Android app. Scope expanded slightly past the throwaway spike: it
+> has the **full UI** (home, share-confirm, compose, pairing, settings, about),
+> the e-ink design system **ported to native** (`src/ui` + `src/theme` — same
+> tokens/type/anatomy as `packages/ui`, which is web/DOM), **share-intent** wired
+> via `expo-share-intent` (`ACTION_SEND` for text/image/video), **photo/video
+> pick** via `expo-image-picker`, and **in-app text compose**. No API yet — sends
+> are recorded locally; the backend POST drops in at Phase 5/7.
+>
+> Verified without hardware: typecheck ✅ · lint ✅ · `expo export` bundles the
+> Android JS ✅ (1229 modules). **Next: run on your phone** per
+> [apps/mobile/README.md](../../apps/mobile/README.md) — needs Android SDK/adb
+> (not yet installed on this machine) + `expo run:android`. This is the GO/NO-GO.
+
 > If the share target misbehaves on One UI, we course-correct (config or native
 > Kotlin shim) before any further client work. Finding this on day 7 is too late.
 

@@ -3,7 +3,7 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 
-import { color, font, radius } from '../theme/tokens';
+import { color, radius } from '../theme/tokens';
 import { family } from '../theme/fonts';
 import { AppText } from './app-text';
 

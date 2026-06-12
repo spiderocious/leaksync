@@ -18,21 +18,21 @@ import { Platform } from 'react-native';
 
 export const FONTS_BUNDLED = false;
 
-// The expo-font map, used only when FONTS_BUNDLED is true. require() of a
-// missing asset would throw at bundle time, so we keep it behind the flag and
-// return an empty map until the TTFs are added.
+// The expo-font map. Metro statically resolves every require() — even inside a
+// dead branch — so we must NOT reference the TTFs here until they actually
+// exist, or bundling fails. When you add the TTFs to ./assets/fonts/, set
+// FONTS_BUNDLED = true and uncomment the block below (and the family() switch).
 export function getFontMap(): Record<string, number> {
   if (!FONTS_BUNDLED) return {};
-  /* eslint-disable @typescript-eslint/no-require-imports */
-  return {
-    Literata: require('../../assets/fonts/Literata-Regular.ttf'),
-    'Literata-Medium': require('../../assets/fonts/Literata-Medium.ttf'),
-    Inter: require('../../assets/fonts/Inter-Regular.ttf'),
-    'Inter-Medium': require('../../assets/fonts/Inter-Medium.ttf'),
-    'Inter-SemiBold': require('../../assets/fonts/Inter-SemiBold.ttf'),
-    JetBrainsMono: require('../../assets/fonts/JetBrainsMono-Regular.ttf'),
-  };
-  /* eslint-enable @typescript-eslint/no-require-imports */
+  // return {
+  //   Literata: require('../../assets/fonts/Literata-Regular.ttf'),
+  //   'Literata-Medium': require('../../assets/fonts/Literata-Medium.ttf'),
+  //   Inter: require('../../assets/fonts/Inter-Regular.ttf'),
+  //   'Inter-Medium': require('../../assets/fonts/Inter-Medium.ttf'),
+  //   'Inter-SemiBold': require('../../assets/fonts/Inter-SemiBold.ttf'),
+  //   JetBrainsMono: require('../../assets/fonts/JetBrainsMono-Regular.ttf'),
+  // };
+  return {};
 }
 
 // Resolve a logical font family to the actual family name to pass to RN.
