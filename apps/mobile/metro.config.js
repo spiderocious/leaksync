@@ -23,4 +23,21 @@ config.resolver.nodeModulesPaths = [
 // 3. pnpm uses symlinks heavily — let Metro follow them.
 config.resolver.unstable_enableSymlinks = true;
 
+// 4. @leaksync/core is authored with NodeNext '.js' import specifiers (e.g.
+//    `export { ROUTES } from './constants/routes.js'`) even though the source
+//    is TypeScript. Vite/Next bridge this with an extensionAlias; Metro needs
+//    the same. Rewrite a failing relative '.js' specifier to its '.ts' source.
+const defaultResolveRequest = config.resolver.resolveRequest;
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (moduleName.startsWith('.') && moduleName.endsWith('.js')) {
+    try {
+      const asTs = moduleName.replace(/\.js$/, '.ts');
+      return context.resolveRequest(context, asTs, platform);
+    } catch {
+      // fall through to default (handles real .js files and non-relative ids)
+    }
+  }
+  return (defaultResolveRequest ?? context.resolveRequest)(context, moduleName, platform);
+};
+
 module.exports = config;

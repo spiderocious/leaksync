@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { color, radius } from '../theme/tokens';
-import { family } from '../theme/fonts';
 import { AppText } from './app-text';
 
 // AppPairingCodeEntry — ported from packages/ui app-pairing-code.tsx (Entry
