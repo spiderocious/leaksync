@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* e-ink tokens come from @leaksync/ui/styles.css (imported first in main.tsx). */
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+/* The popup is a floating sheet on a transparent window — let the rounded
+   MenuBarPopup card define the visible surface. */
+body {
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  user-select: none;
+}

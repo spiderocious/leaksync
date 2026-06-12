@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "types": ["node", "electron"],
+    "paths": {
+      "@leaksync/ui": ["../../packages/ui/src/index.ts"],
+      "@leaksync/ui/*": ["../../packages/ui/src/*"],
+      "@leaksync/core": ["../../packages/core/src/index.ts"],
+      "@leaksync/core/*": ["../../packages/core/src/*"],
+      "@leaksync/api": ["../../packages/api/src/index.ts"],
+      "@icons": ["../../packages/ui/src/icons/index.ts"],
+      "@app/*": ["./src/renderer/src/*"]
+    }
+  },
+  "include": ["src", "electron.vite.config.ts"],
+  "exclude": ["node_modules", "out", "dist"]
+}
