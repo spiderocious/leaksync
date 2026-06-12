@@ -13,8 +13,9 @@ export const ROUTES = {
 
   // App
   DASHBOARD: '/dashboard',
-  EXAMPLE: '/example',
-  EXAMPLE_ITEM: (id: string) => `/example/${id}`,
+
+  // Dev — design-system gallery (Phase 2)
+  PREVIEW: '/preview',
 
   // Admin
   ADMIN_LOGIN: '/admin/login',

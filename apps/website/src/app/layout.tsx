@@ -4,8 +4,8 @@ import type { ReactNode } from 'react';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Monorepo Template',
-  description: 'Marketing site for the monorepo template. Replace this metadata.',
+  title: 'LeakSync',
+  description: 'Share anything from your phone to your Mac, instantly.',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

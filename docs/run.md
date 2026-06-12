@@ -35,10 +35,10 @@ Either use the per-app filter or `cd` into the app:
 
 ```bash
 # Filter form (run from anywhere)
-pnpm -F @repo/main-backend dev
-pnpm -F @repo/web dev
-pnpm -F @repo/admin-web dev
-pnpm -F @repo/website dev
+pnpm -F @leaksync/main-backend dev
+pnpm -F @leaksync/web dev
+pnpm -F @leaksync/admin-web dev
+pnpm -F @leaksync/website dev
 
 # Or via Nx target name (project name = unscoped, e.g. `web`)
 pnpm exec nx run main-backend:dev
@@ -50,9 +50,9 @@ pnpm exec nx run web:dev
 In separate terminals:
 
 ```bash
-pnpm -F @repo/main-backend dev        # 8081
-pnpm -F @repo/web dev                 # 5173 → calls main-backend
-pnpm -F @repo/website dev             # 3000 → links to web
+pnpm -F @leaksync/main-backend dev        # 8081
+pnpm -F @leaksync/web dev                 # 5173 → calls main-backend
+pnpm -F @leaksync/website dev             # 3000 → links to web
 ```
 
 ## Building
@@ -61,8 +61,8 @@ Each app has a `build` target that produces a `dist/` (or `.next/` for the websi
 
 ```bash
 # One app
-pnpm -F @repo/main-backend build
-pnpm -F @repo/web build
+pnpm -F @leaksync/main-backend build
+pnpm -F @leaksync/web build
 
 # Everything (Nx orchestrates the dependency order: core → api/ui → apps)
 pnpm exec nx run-many -t build
@@ -81,22 +81,22 @@ Output locations:
 
 ```bash
 # Express service
-pnpm -F @repo/main-backend build && pnpm -F @repo/main-backend start
+pnpm -F @leaksync/main-backend build && pnpm -F @leaksync/main-backend start
 
 # Vite preview (production bundle on a preview server, port 4173/4174)
-pnpm -F @repo/web build && pnpm -F @repo/web start
-pnpm -F @repo/admin-web build && pnpm -F @repo/admin-web start
+pnpm -F @leaksync/web build && pnpm -F @leaksync/web start
+pnpm -F @leaksync/admin-web build && pnpm -F @leaksync/admin-web start
 
 # Next.js production
-pnpm -F @repo/website build && pnpm -F @repo/website start
+pnpm -F @leaksync/website build && pnpm -F @leaksync/website start
 ```
 
 ## Typecheck & lint
 
 ```bash
 # Single project
-pnpm -F @repo/main-backend typecheck
-pnpm -F @repo/web lint
+pnpm -F @leaksync/main-backend typecheck
+pnpm -F @leaksync/web lint
 
 # All projects
 pnpm typecheck       # nx run-many -t typecheck
@@ -116,5 +116,5 @@ curl http://localhost:8081/api/v1/health           # main-backend
 
 - `Invalid environment variables` on boot — copy the matching `.env.example` and set every required value (zod parse error lists the missing keys).
 - `EADDRINUSE` — a previous dev process is still running on the port. `lsof -ti:<port> | xargs kill -9`.
-- `Module not found: '@repo/ui'` after a rename — restart the dev server; tsconfig path edits aren't watched.
+- `Module not found: '@leaksync/ui'` after a rename — restart the dev server; tsconfig path edits aren't watched.
 - `npm install` errors out — the `preinstall` hook blocks anything other than pnpm. Install pnpm or use corepack.

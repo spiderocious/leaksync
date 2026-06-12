@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 
-import { ROUTES } from '@repo/core';
+import { ROUTES } from '@leaksync/core';
 
 import { AdminHome } from '@features/dashboard/admin-home.tsx';
 

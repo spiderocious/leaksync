@@ -8,8 +8,4 @@ export const EP = {
   AUTH_REFRESH: 'api/v1/auth/refresh',
   AUTH_LOGOUT: 'api/v1/auth/logout',
   AUTH_ME: 'api/v1/me',
-
-  // Example feature — placeholder CRUD wiring. Replace with real endpoints.
-  EXAMPLE_LIST: 'api/v1/example',
-  EXAMPLE_ITEM: (id: string) => `api/v1/example/${id}`,
 } as const;

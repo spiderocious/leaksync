@@ -1,5 +1,5 @@
 {
-  "name": "@repo/main-backend",
+  "name": "@leaksync/main-backend",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@repo/core": "workspace:*",
+    "@leaksync/core": "workspace:*",
     "compression": "^1.8.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",

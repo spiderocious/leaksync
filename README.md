@@ -1,9 +1,11 @@
-# Monorepo Template
+# LeakSync
 
-A starter monorepo for quickly spinning up a new project. Nx + pnpm workspace
-with a shared core/api/ui layer, an Express backend, two React frontends and a
-Next.js marketing site. Strict TypeScript, ESLint/Prettier, and a typed
-request/response envelope are wired up out of the box.
+Share anything from your Android phone to your Mac, instantly, by sharing to
+LeakSync from any app's share sheet. Nx + pnpm workspace with a shared
+core/api/ui layer, an Express backend, React frontends, and (to come) an Electron
+Mac app and a React Native Android app. Strict TypeScript, ESLint/Prettier, and a
+typed request/response envelope are wired up. See
+[docs/product/phases.md](docs/product/phases.md) for the build plan.
 
 ## What's in here
 
@@ -32,35 +34,22 @@ cp apps/admin-web/.env.example    apps/admin-web/.env
 cp apps/website/.env.example      apps/website/.env
 
 # In separate terminals
-pnpm -F @repo/main-backend dev    # http://localhost:8081
-pnpm -F @repo/web dev             # http://localhost:5173
+pnpm -F @leaksync/main-backend dev    # http://localhost:8081
+pnpm -F @leaksync/web dev             # http://localhost:5173
 ```
 
 Full commands (build, production, per-app filters) are in [docs/run.md](docs/run.md).
 
-## Using this as a template
+## Project layout
 
-This repo is deliberately generic. The wiring is real; the content is
-placeholder. To make it yours:
-
-1. **Rename the package scope.** It's `@repo/*` everywhere — package names,
-   `tsconfig.base.json` paths, each app's `vite.config.ts` aliases. Pick your
-   own scope and find-and-replace `@repo` across the workspace, then update the
-   root package `name` in `package.json`.
-2. **Re-theme.** Edit the design tokens in
-   [packages/ui/src/theme/index.ts](packages/ui/src/theme/index.ts) and mirror
-   them in each app's `tailwind.config.ts` and
-   [packages/ui/src/styles.css](packages/ui/src/styles.css). The token names
-   (`brand`, `surface`, `accent`, `ink`) are semantic so they survive a rebrand.
-3. **Replace the `example` feature.** There's a placeholder feature that
-   demonstrates the full path — route constant (`ROUTES.EXAMPLE`), endpoint
-   (`EP.EXAMPLE_LIST`), backend router (`apps/main-backend/src/features/example/`),
-   and screen (`apps/web/src/features/example/`). Delete it and build your own
-   following the same shape.
-4. **Replace placeholder types.** [packages/core/src/types/index.ts](packages/core/src/types/index.ts)
-   has stub `User` / `ExampleItem` types. Swap in your domain.
-5. **Update copy & metadata.** Home screens, the website page/layout metadata,
-   and the `<title>` tags in each `index.html`.
+This started from a generic monorepo template and has been rebranded to LeakSync.
+The shared design tokens live in
+[packages/ui/src/theme/index.ts](packages/ui/src/theme/index.ts) (mirrored into
+each app's `tailwind.config.ts` and
+[packages/ui/src/styles.css](packages/ui/src/styles.css)); the design system is
+built out in Phase 3. The full build plan — backend, Electron Mac app, React
+Native Android share target — is in
+[docs/product/phases.md](docs/product/phases.md).
 
 ## Conventions
 

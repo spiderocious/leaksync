@@ -1,5 +1,5 @@
 import ky, { type KyInstance } from 'ky';
-import { TOKEN_KEYS, createTokenStorage } from '@repo/core';
+import { TOKEN_KEYS, createTokenStorage } from '@leaksync/core';
 
 import { EP } from './endpoints.js';
 

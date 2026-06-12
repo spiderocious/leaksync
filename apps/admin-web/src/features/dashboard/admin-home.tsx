@@ -1,5 +1,5 @@
-import { useHealth } from '@repo/api';
-import { AppText } from '@repo/ui';
+import { useHealth } from '@leaksync/api';
+import { AppText } from '@leaksync/ui';
 
 export function AdminHome() {
   const { data, isLoading, isError } = useHealth();
@@ -16,8 +16,8 @@ export function AdminHome() {
       </AppText>
 
       <section className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Tile label="users" value="—" hint="connect once auth lands" />
-        <Tile label="items" value="—" hint="connect to /api/v1/example" />
+        <Tile label="pairs" value="—" hint="connect once pairing lands" />
+        <Tile label="items" value="—" hint="connect to /api/v1/items" />
         <Tile
           label="backend"
           value={isLoading ? '…' : isError ? 'down' : (data?.status ?? '—')}

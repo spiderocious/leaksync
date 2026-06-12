@@ -1,5 +1,5 @@
 {
-  "name": "@repo/admin-web",
+  "name": "@leaksync/admin-web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,10 +12,11 @@
     "lint": "eslint --config ../../eslint.config.mjs 'src/**/*.{ts,tsx}'"
   },
   "dependencies": {
-    "@repo/api": "workspace:*",
-    "@repo/core": "workspace:*",
-    "@repo/ui": "workspace:*",
+    "@leaksync/api": "workspace:*",
+    "@leaksync/core": "workspace:*",
+    "@leaksync/ui": "workspace:*",
     "@tanstack/react-query": "^5.62.0",
+    "meemaw": "^1.0.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^6.28.0"

@@ -1,65 +1,40 @@
-# Monorepo Template
+# LeakSync
 
-This is a **reusable starter template**, not a finished product. The wiring is
-real; the names and content are deliberately generic placeholders. See
-[README.md](README.md) for the tour and [docs/rules.md](docs/rules.md) for the
-code conventions (read `rules.md` before adding code).
+Share anything from your Android phone to your Mac, instantly, by sharing to
+LeakSync from any app's share sheet. A one-user gift build. See the PRD intent in
+[docs/product/phases.md](docs/product/phases.md), [README.md](README.md) for the
+workspace tour, and [docs/rules.md](docs/rules.md) for code conventions (read
+`rules.md` before adding code).
 
-## ⚠️ First thing — if this is a fresh project, ask before building
+This started from a reusable monorepo template; it has been rebranded
+(`@repo/*` → `@leaksync/*`, root name `leaksync`) and the demo `example` feature
++ `User`/`ExampleItem` stubs have been removed. **It is an initialized project,
+not a fresh template — build features directly.**
 
-If a developer asks you to start building features and the repo still looks like
-the untouched template (package scope is still `@repo/*`, root package name is
-still `monorepo-template`, the `example` feature still exists), **stop and ask
-two questions before writing any feature code**:
+## Architecture (decided)
 
-1. **What's the product/app name?** Then either:
-   - Rebrand to it — e.g. rename the package scope `@repo/*` → `@<name>/*` and set
-     the root `package.json` `name` to the product name. See "How to rebrand" below.
-   - Or keep `@repo` as-is if they prefer a neutral scope. Either is fine — just
-     confirm rather than assuming.
-2. **What should happen to the placeholders?** The `example` feature, the stub
-   `User`/`ExampleItem` types, and the placeholder home/website copy exist only to
-   demonstrate the wiring. Confirm whether to replace them now, leave them as a
-   reference, or delete them.
+- **Monorepo:** this TS pnpm/Nx workspace. Backend = Express `apps/main-backend`.
+- **Mac:** Electron + React (`apps/desktop`, to be added), reuses
+  `@leaksync/ui` / `core` / `api`. Lives in the menu bar.
+- **Android:** React Native (`apps/mobile`, to be added), registered share target.
+  Shares types from `@leaksync/core`.
+- **Storage:** MongoDB for item metadata; images go through the external
+  file-service (`go-file-service-production.up.railway.app`) → R2. The backend
+  stores only the file `key`, never image bytes.
+- **Transport:** Mac opens a WebSocket on launch (hard 5-min lifetime, config-driven),
+  then falls back to HTTP polling (1→2→4→8→16→20 min, doubling, cap 20); any poll
+  returning a new item resets back to WebSocket. Manual Refresh always available.
+  Android never holds a socket — it only POSTs. Mac registers launch-on-login.
+- **Auth:** no accounts. 6-digit pairing code → long-lived per-device bearer tokens.
 
-Do **not** silently invent a name or scatter a product name through the code
-without asking. A wrong guess is expensive to undo across a monorepo.
+The `auth` and `health` backend features, the request/envelope/error middleware,
+the typed `api` client, and the `ui` primitives are reusable scaffolding — keep
+and build on them.
 
-## How to rebrand (`@repo` → `@<product>`)
+## Build phases
 
-The scope `@repo` appears in a fixed set of places. To rename it, change all of:
-
-- **Package names** — `name` field in every `apps/*/package.json` and
-  `packages/*/package.json` (`@repo/web`, `@repo/core`, …).
-- **Workspace dependency references** — `"@repo/core": "workspace:*"` etc. in the
-  apps that consume shared packages.
-- **TS path aliases** — `tsconfig.base.json` (`@repo/ui`, `@repo/core`, `@repo/api`).
-- **Vite aliases** — `apps/web/vite.config.ts` and `apps/admin-web/vite.config.ts`
-  (note: these use regex forms like `/^@repo\/ui$/`, so update those too).
-- **Source imports** — `import { … } from '@repo/...'` across `apps/` and `packages/`.
-- **Root package name** — `name` in the top-level `package.json`.
-- **Docs** — `README.md`, `docs/rules.md`, `docs/run.md` mention `@repo/*` in commands.
-
-After renaming, run `pnpm install` (refreshes `pnpm-lock.yaml` with the new
-names), then verify with `pnpm exec nx run-many -t typecheck` and
-`... -t build`. The per-app `src` aliases (`@app`, `@features`, `@shared`,
-`@lib`, `@middlewares`, `@icons`) are internal and stay as they are — only the
-cross-package `@repo` scope changes.
-
-## What's a placeholder (safe to replace/delete)
-
-- `example` feature: `apps/main-backend/src/features/example/`,
-  `apps/web/src/features/example/`, plus `ROUTES.EXAMPLE*` in
-  `packages/core/src/constants/routes.ts` and `EP.EXAMPLE*` in
-  `packages/api/src/endpoints.ts`.
-- Stub types `User` / `ExampleItem` in `packages/core/src/types/index.ts`.
-- Home/website copy and `<title>` tags; design tokens in
-  `packages/ui/src/theme/index.ts` (mirror any change into each
-  `tailwind.config.ts` and `packages/ui/src/styles.css`).
-
-The `auth` and `health` backend features, the request/envelope/error
-middleware, the typed `api` client, and the `ui` primitives are reusable
-scaffolding — keep and build on them.
+Work proceeds in the phases tracked in
+[docs/product/phases.md](docs/product/phases.md). Pause for review after each.
 
 ## Conventions (summary — full version in docs/rules.md)
 
@@ -70,7 +45,7 @@ scaffolding — keep and build on them.
   single `register(app)` per `features/<name>/index.ts`. Responses go through
   `ResponseUtil`; errors bubble to the central handler.
 - Frontend data fetching is react-query only, hitting `EP.*` constants; routes
-  come from `ROUTES.*`; UI comes from `@repo/ui`; icons from `@icons`.
+  come from `ROUTES.*`; UI comes from `@leaksync/ui`; icons from `@icons`.
 - Package dependency direction: `core` ← `api`, `core` ← `ui`. No `ui → api`.
 
 ---

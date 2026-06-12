@@ -16,10 +16,10 @@
     "paths": {
       "@app/*": ["./src/app/*"],
       "@components/*": ["./src/components/*"],
-      "@repo/ui": ["../../packages/ui/src/index.ts"],
-      "@repo/ui/*": ["../../packages/ui/src/*"],
-      "@repo/core": ["../../packages/core/src/index.ts"],
-      "@repo/core/*": ["../../packages/core/src/*"],
+      "@leaksync/ui": ["../../packages/ui/src/index.ts"],
+      "@leaksync/ui/*": ["../../packages/ui/src/*"],
+      "@leaksync/core": ["../../packages/core/src/index.ts"],
+      "@leaksync/core/*": ["../../packages/core/src/*"],
       "@icons": ["../../packages/ui/src/icons/index.ts"]
     }
   },

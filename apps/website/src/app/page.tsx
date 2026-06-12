@@ -1,20 +1,19 @@
 import Link from 'next/link';
 
-import { AppText } from '@repo/ui';
+import { AppText } from '@leaksync/ui';
 
 export default function HomePage() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:5173';
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-20">
-      <AppText variant="caption">marketing site</AppText>
+      <AppText variant="caption">leaksync</AppText>
       <AppText variant="display-1" className="mt-2 text-brand-900">
-        Your product headline goes here.
+        Your phone to your Mac, instantly.
       </AppText>
       <AppText variant="body" className="mt-6 max-w-2xl text-ink-700">
-        This is the Next.js marketing site in the monorepo template. It shares the
-        same UI primitives as the app. Replace this copy, the cards below and the
-        metadata in layout.tsx with your own.
+        Share a tweet, an image, a link or a note from any app on your phone and it
+        lands on your Mac within a second. Pair once, share forever.
       </AppText>
 
       <div className="mt-10 flex flex-wrap gap-3">
