@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { formatRelative, type Item } from '@leaksync/core';
 import {
@@ -31,9 +31,27 @@ export function App() {
   const [view, setView] = useState<View>('main');
   const [thumbs, setThumbs] = useState<Record<string, string>>({});
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [bridgeMissing, setBridgeMissing] = useState(false);
+  const codeRequested = useRef(false);
+
+  // When unpaired with no code yet, request one — exactly once.
+  useEffect(() => {
+    if (state && !state.paired && !state.pairingCode && !codeRequested.current) {
+      codeRequested.current = true;
+      void window.leaksync.createPairCode();
+    }
+    if (state?.paired) codeRequested.current = false;
+  }, [state]);
 
   // Subscribe to main-process state + the highlight (notification click) signal.
   useEffect(() => {
+    // The bridge only exists inside Electron (injected by the preload). If this
+    // is opened in a plain browser (the Vite dev URL), there's no bridge — show
+    // a hint instead of crashing.
+    if (!window.leaksync) {
+      setBridgeMissing(true);
+      return;
+    }
     void window.leaksync.getState().then(setState);
     const offState = window.leaksync.onStateChanged(setState);
     const offHi = window.leaksync.onHighlightItem((id) => {
@@ -50,7 +68,6 @@ export function App() {
   const newestId = state?.items[0]?.id;
   useEffect(() => {
     if (newestId) playChime();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newestId]);
 
   // Resolve image thumbnail URLs lazily for any image items we haven't yet.
@@ -63,7 +80,6 @@ export function App() {
         });
       }
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state?.items]);
 
   const appItems = useMemo<AppItem[]>(
@@ -71,12 +87,25 @@ export function App() {
     [state?.items, thumbs, highlightId],
   );
 
+  if (bridgeMissing) {
+    return (
+      <Centered>
+        <div className="max-w-[300px] rounded-card border border-hair bg-paper-sheet p-5 text-center">
+          <div className="font-serif text-[15px] text-ink">Open me from the app, not the browser</div>
+          <div className="mt-2 font-sans text-[12px] leading-[1.5] text-ink-3">
+            This is the LeakSync menu-bar window. Run <code>pnpm -F @leaksync/desktop dev</code> and
+            click the tray icon — the Vite URL in a browser has no app bridge.
+          </div>
+        </div>
+      </Centered>
+    );
+  }
+
   if (!state) return null;
 
-  // ----- Not paired yet → show the pairing code (create one if needed) -----
+  // ----- Not paired yet → show the pairing code (requested in the effect above) -----
   if (!state.paired) {
     if (!state.pairingCode) {
-      void window.leaksync.createPairCode();
       return <Centered>Generating pairing code…</Centered>;
     }
     return (

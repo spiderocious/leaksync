@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/api_client.dart';
 import '../state/app_scope.dart';
 import '../theme/tokens.dart';
 import '../ui/app_button.dart';
@@ -10,8 +11,7 @@ import '../ui/app_text.dart';
 import '../ui/screen_scaffold.dart';
 
 /// Pairing — the single deliberate moment in the whole product. Enter the
-/// 6-digit code shown on the Mac. No accounts, no passwords. (No API yet — any
-/// complete 6-digit code "pairs" locally.)
+/// 6-digit code shown on the Mac, which is redeemed against the backend.
 class PairScreen extends StatefulWidget {
   const PairScreen({super.key});
 
@@ -21,12 +21,38 @@ class PairScreen extends StatefulWidget {
 
 class _PairScreenState extends State<PairScreen> {
   String _code = '';
+  bool _busy = false;
+  String? _error;
 
-  void _pair() {
-    if (_code.length != 6) return;
+  Future<void> _pair() async {
+    if (_code.length != 6 || _busy) return;
     FocusScope.of(context).unfocus();
-    AppScope.of(context).pair(_code);
-    context.go('/');
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await AppScope.of(context).pair(_code);
+      if (mounted) context.go('/');
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = e.code == 'not_found'
+              ? 'That code didn’t work. Check the six digits on your Mac.'
+              : e.code == 'conflict'
+                  ? 'That Mac is already paired to a phone.'
+                  : e.message;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = 'Couldn’t reach your Mac. Is the backend running?';
+        });
+      }
+    }
   }
 
   @override
@@ -59,9 +85,16 @@ class _PairScreenState extends State<PairScreen> {
               onChanged: (v) => setState(() => _code = v),
               onCompleted: (_) => _pair(),
             ),
+            if (_error != null) ...[
+              const SizedBox(height: 16),
+              AppText(_error!,
+                  variant: AppTextVariant.body,
+                  color: AppColors.warn,
+                  textAlign: TextAlign.center),
+            ],
             const SizedBox(height: 34),
-            AppButton('Pair this phone',
-                variant: AppButtonVariant.box, onPressed: complete ? _pair : null),
+            AppButton(_busy ? 'Pairing…' : 'Pair this phone',
+                variant: AppButtonVariant.box, onPressed: complete && !_busy ? _pair : null),
           ],
         ),
       ),

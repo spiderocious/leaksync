@@ -15,9 +15,11 @@ import 'state/app_scope.dart';
 import 'state/app_state.dart';
 import 'theme/tokens.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(LeakSyncApp(state: AppState()));
+  final state = AppState();
+  await state.init(); // load persisted token + API base before first frame
+  runApp(LeakSyncApp(state: state));
 }
 
 class LeakSyncApp extends StatefulWidget {
@@ -58,33 +60,46 @@ class _LeakSyncAppState extends State<LeakSyncApp> {
     });
   }
 
-  void _handleShared(List<SharedMediaFile> files) {
+  Future<void> _handleShared(List<SharedMediaFile> files) async {
     if (files.isEmpty) return;
     final state = widget.state;
 
-    for (final f in files) {
-      switch (f.type) {
-        case SharedMediaType.image:
-        case SharedMediaType.video:
-          final name = f.path.split('/').last;
-          state.addSent(kind: ItemKind.image, content: name, uri: f.path);
-          break;
-        case SharedMediaType.text:
-        case SharedMediaType.url:
-          final value = f.path.trim();
-          final isUrl = RegExp(r'^https?://\S+$', caseSensitive: false).hasMatch(value);
-          state.addSent(kind: isUrl ? ItemKind.url : ItemKind.text, content: value);
-          break;
-        case SharedMediaType.file:
-          state.addSent(kind: ItemKind.text, content: f.path.split('/').last);
-          break;
-      }
+    // Must be paired to send. If not, bounce to pairing (the share is dropped —
+    // the user re-shares once paired).
+    if (!state.paired) {
+      _router.go('/pair');
+      return;
     }
 
-    if (state.paired) {
-      _router.go('/share');
-    } else {
-      _router.go('/pair');
+    // Show the "Sending… / Sent ✓" surface while we POST.
+    _router.go('/share');
+
+    try {
+      for (final f in files) {
+        switch (f.type) {
+          case SharedMediaType.image:
+          case SharedMediaType.video:
+            final xfile = XFile(f.path);
+            final bytes = await xfile.readAsBytes();
+            await state.sendImage(
+              bytes,
+              filename: f.fileName ?? f.path.split('/').last,
+              mime: f.mimeType,
+            );
+            break;
+          case SharedMediaType.text:
+          case SharedMediaType.url:
+            await state.sendText((f.text ?? f.path).trim());
+            break;
+          case SharedMediaType.file:
+            // A non-media file: send its name as text (v1 scope = text/url/image).
+            await state.sendText(f.fileName ?? f.path.split('/').last);
+            break;
+        }
+      }
+      ShareScreen.markResult(true);
+    } catch (_) {
+      ShareScreen.markResult(false);
     }
   }
 

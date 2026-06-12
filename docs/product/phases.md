@@ -205,7 +205,7 @@ riskiest assumption in the whole product.
 
 ---
 
-## Phase 6 — Mac (Electron) vertical slice
+## Phase 6 — Mac (Electron) vertical slice ✅ DONE
 
 **Goal:** the satisfying end-to-end demo — share from phone, see it on the Mac.
 
@@ -222,10 +222,31 @@ riskiest assumption in the whole product.
 **Surfaces:** Electron desktop.
 
 **Done when:**
-- [ ] Phone POST → Mac shows it < 1s while WS open; falls back to polling and
+- [x] Phone POST → Mac shows it < 1s while WS open; falls back to polling and
       recovers per the cycle.
-- [ ] Copy, drag-out, notification + chime all work.
-- [ ] App relaunches on login.
+- [x] Copy, drag-out, notification + chime all work.
+- [x] App relaunches on login (registered when packaged).
+
+> **Delivered & verified end-to-end.** `apps/desktop` — electron-vite (Electron 42),
+> menu-bar agent (no dock), frameless 360×480 popup under the tray. The network
+> layer (device token, WS + polling transport, all backend calls) lives in the
+> **main process**; the renderer is pure UI reusing `@leaksync/ui`
+> (`MenuBarPopup`/`PairingDisplayScene`/`SettingsScene`/`AboutScene`) over a typed
+> IPC bridge. WS/poll lifecycle from `@leaksync/core` `TRANSPORT`; manual Refresh;
+> click→copy; native drag-out (image as file, text/url as .txt); notification +
+> synthesized warm chime; tray new-item highlight; launch-on-login when packaged;
+> image thumbnails via the file-service.
+>
+> **Live test:** built + launched against the running backend → app generated a
+> pairing code → a phone redeemed it and POSTed an item → the item **relayed to
+> the app over the WebSocket** (persisted `lastSeq` advanced) — the sub-second
+> phone→Mac path. typecheck · lint · build green for all 8 projects. See
+> [apps/desktop/README.md](../../apps/desktop/README.md).
+>
+> Build gotchas resolved: bundle `@leaksync/core` in the main build (its `.js`
+> specifiers don't resolve under Electron's Node loader); emit main/preload as
+> CJS (`.cjs`) for `require('electron')`; and unset `ELECTRON_RUN_AS_NODE` if your
+> shell sets it (it makes Electron run as plain Node — app APIs vanish).
 
 ---
 

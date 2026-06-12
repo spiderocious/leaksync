@@ -1,10 +1,10 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../models/item.dart';
+import '../data/api_client.dart';
 import '../state/app_scope.dart';
 import '../theme/tokens.dart';
 import '../ui/app_button.dart';
@@ -13,9 +13,8 @@ import '../ui/screen_scaffold.dart';
 
 /// Compose — the two in-app ways to send without a share sheet:
 ///   1. Type text (a note or a pasted URL — detected).
-///   2. Pick a photo/video from the library.
-/// No API yet: "Send" records the item locally and returns home. Opening with
-/// ?pick=1 launches the picker immediately.
+///   2. Pick a photo/video from the library (uploaded to the file-service).
+/// Opening with ?pick=1 launches the picker immediately.
 class ComposeScreen extends StatefulWidget {
   const ComposeScreen({super.key, this.autoPick = false});
   final bool autoPick;
@@ -28,7 +27,9 @@ class _ComposeScreenState extends State<ComposeScreen> {
   final _controller = TextEditingController();
   final _picker = ImagePicker();
   XFile? _picked;
+  Uint8List? _previewBytes; // web-safe image preview
   bool _launched = false;
+  bool _busy = false;
 
   @override
   void initState() {
@@ -51,23 +52,58 @@ class _ComposeScreenState extends State<ComposeScreen> {
 
   Future<void> _pickMedia() async {
     final file = await _picker.pickMedia();
-    if (file != null) setState(() => _picked = file);
+    if (file != null) {
+      final bytes = await file.readAsBytes();
+      if (mounted) setState(() {
+        _picked = file;
+        _previewBytes = bytes;
+      });
+    }
   }
 
-  bool _isUrl(String s) =>
-      RegExp(r'^https?://\S+$', caseSensitive: false).hasMatch(s) ||
-      RegExp(r'^www\.\S+$', caseSensitive: false).hasMatch(s);
-
-  void _send() {
+  Future<void> _send() async {
+    if (_busy) return;
     final state = AppScope.of(context);
-    if (_picked != null) {
-      state.addSent(kind: ItemKind.image, content: _picked!.name, uri: _picked!.path);
-    } else {
-      final text = _controller.text.trim();
-      if (text.isEmpty) return;
-      state.addSent(kind: _isUrl(text) ? ItemKind.url : ItemKind.text, content: text);
+    setState(() => _busy = true);
+    try {
+      if (_picked != null) {
+        final bytes = await _picked!.readAsBytes();
+        await state.sendImage(
+          bytes,
+          filename: _picked!.name,
+          mime: _picked!.mimeType ?? _guessMime(_picked!.name),
+        );
+      } else {
+        final text = _controller.text.trim();
+        if (text.isEmpty) {
+          setState(() => _busy = false);
+          return;
+        }
+        await state.sendText(text);
+      }
+      if (mounted) context.go('/');
+    } on ApiException catch (e) {
+      _fail(e.message);
+    } catch (_) {
+      _fail('Couldn’t send. Check your connection and try again.');
     }
-    context.go('/');
+  }
+
+  void _fail(String msg) {
+    if (!mounted) return;
+    setState(() => _busy = false);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  String? _guessMime(String name) {
+    final n = name.toLowerCase();
+    if (n.endsWith('.png')) return 'image/png';
+    if (n.endsWith('.jpg') || n.endsWith('.jpeg')) return 'image/jpeg';
+    if (n.endsWith('.gif')) return 'image/gif';
+    if (n.endsWith('.webp')) return 'image/webp';
+    if (n.endsWith('.mp4')) return 'video/mp4';
+    if (n.endsWith('.mov')) return 'video/quicktime';
+    return null;
   }
 
   @override
@@ -117,8 +153,8 @@ class _ComposeScreenState extends State<ComposeScreen> {
                     ],
                   ),
                 ),
-                AppButton('Send to Mac',
-                    variant: AppButtonVariant.box, onPressed: canSend ? _send : null),
+                AppButton(_busy ? 'Sending…' : 'Send to Mac',
+                    variant: AppButtonVariant.box, onPressed: canSend && !_busy ? _send : null),
               ],
             ),
           ),
@@ -150,7 +186,9 @@ class _ComposeScreenState extends State<ComposeScreen> {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(AppRadius.card),
-          child: Image.file(File(_picked!.path), height: 280, width: double.infinity, fit: BoxFit.cover),
+          child: _previewBytes != null
+              ? Image.memory(_previewBytes!, height: 280, width: double.infinity, fit: BoxFit.cover)
+              : Container(height: 280, color: AppColors.paper3),
         ),
         const SizedBox(height: 12),
         Row(
@@ -158,7 +196,10 @@ class _ComposeScreenState extends State<ComposeScreen> {
           children: [
             Expanded(child: AppText(_picked!.name, variant: AppTextVariant.read, maxLines: 1)),
             GestureDetector(
-              onTap: () => setState(() => _picked = null),
+              onTap: () => setState(() {
+                _picked = null;
+                _previewBytes = null;
+              }),
               child: const AppText('remove', variant: AppTextVariant.meta, color: AppColors.warn),
             ),
           ],

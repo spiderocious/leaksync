@@ -14,19 +14,32 @@ import '../ui/screen_scaffold.dart';
 /// Home — the 5% surface. The product is the share sheet; this screen exists
 /// only to reassure: who you're paired with, what you've sent, and the two ways
 /// to send something without leaving the app.
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  RowItem _toRow(SentItem s) => RowItem(
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Refresh the recent list whenever the home screen mounts.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) AppScope.of(context).loadRecent();
+    });
+  }
+
+  RowItem _toRow(Item s) => RowItem(
         id: s.id,
         kind: switch (s.kind) {
           ItemKind.url => RowKind.link,
           ItemKind.image => RowKind.image,
           ItemKind.text => RowKind.text,
         },
-        content: s.kind == ItemKind.image && s.content.isEmpty ? 'Image' : s.content,
-        thumbPath: s.uri,
-        when: formatRelative(s.sentAt),
+        content: s.display.isEmpty ? 'Image' : s.display,
+        when: formatRelative(s.createdAt),
       );
 
   @override
@@ -98,9 +111,14 @@ class HomeScreen extends StatelessWidget {
                       color: AppColors.ink3,
                     ),
                   )
-                : ListView(
-                    padding: EdgeInsets.zero,
-                    children: [for (final item in items) AppItemRow(item: item)],
+                : RefreshIndicator(
+                    color: AppColors.moss,
+                    onRefresh: () => AppScope.of(context).loadRecent(),
+                    child: ListView(
+                      padding: EdgeInsets.zero,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [for (final item in items) AppItemRow(item: item)],
+                    ),
                   ),
           ),
         ],

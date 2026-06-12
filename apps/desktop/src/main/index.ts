@@ -31,14 +31,21 @@ const pushState = (): void => {
 
 app.whenReady().then(() => {
   setLoginItem();
-  createPopup();
-  createTray();
+  const popup = createPopup();
+  // eslint-disable-next-line no-console
+  console.log('[leaksync] popup window created');
+
+  let tray;
+  try {
+    tray = createTray();
+    // eslint-disable-next-line no-console
+    console.log('[leaksync] tray icon created — look in the menu bar (top-right)');
+  } catch (err) {
+    console.error('[leaksync] TRAY FAILED:', err);
+  }
+
   appState.init();
-
-  // Fan state changes out to the renderer.
   appState.on('changed', pushState);
-
-  // On arrival: highlight the tray, fire a notification (+ the renderer chime).
   appState.on('arrived', (items) => {
     flashTray();
     notifyArrival(items);
@@ -46,11 +53,21 @@ app.whenReady().then(() => {
   });
 
   registerIpc();
+
+  // Show the popup once on first launch (centered) so it's obviously running —
+  // afterwards it behaves as a tray popup (click the tray icon to toggle).
+  popup.once('ready-to-show', () => {
+    popup.center();
+    popup.show();
+    popup.focus();
+    // eslint-disable-next-line no-console
+    console.log('[leaksync] popup shown (centered). Backend:', api.base);
+  });
+  void tray;
 });
 
-app.on('window-all-closed', (e: Electron.Event) => {
-  // Keep running as a menu-bar agent even with no visible window.
-  e.preventDefault();
+app.on('window-all-closed', () => {
+  // Keep running as a menu-bar agent even with no visible window. (Do NOT quit.)
 });
 
 const registerIpc = (): void => {

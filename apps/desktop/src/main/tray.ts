@@ -4,20 +4,26 @@ import { togglePopup } from './window.js';
 
 // The menu-bar tray icon — the "stack" glyph as a monochrome template image
 // (macOS tints it for light/dark menu bars). It briefly highlights when a new
-// item arrives. Drawn from a tiny PNG data URL so there's no asset to ship.
+// item arrives. Embedded as base64 (verified to have visible pixels) so there's
+// no asset path to resolve across dev/prod.
 
 let tray: Tray | null = null;
 let highlightTimer: NodeJS.Timeout | null = null;
 
-// A 16×16 "stack of three bars" glyph, black on transparent — the template icon.
-// (Pre-rendered 1x PNG; macOS scales/tints template images.)
-const ICON_PNG_BASE64 =
-  'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAUklEQVR4nO3SsQ2AMAxE0R8oKZmA' +
-  'ETICI2QENmAERmADRmAERmADRmCEpKChQEKQ0vBd5+rsK2xJkmRJkmRJkiTpkwM4A2egB3pgBdbA' +
-  'A7gCDXA2xgsd2QYV0wAAAABJRU5ErkJggg==';
+// Three solid black bars on transparent — 16×16 (@1x) and 32×32 (@2x). Generated
+// + pixel-verified (90/256 opaque). macOS tints template images to the menu bar.
+const ICON_16 =
+  'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAHklEQVR4nGNgGAXo4D+ReNQAWhpAMRh4Lwx8GJAMAKhQWacBJN6RAAAAAElFTkSuQmCC';
+const ICON_32 =
+  'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAMUlEQVR4nO3SwQkAQAgDQftvWms4OIyPGfC/EKuAw/rzCRDAs/gEAgQQF/8BAQJgxQCm0irk8DhmfwAAAABJRU5ErkJggg==';
 
 const baseIcon = (): NativeImage => {
-  const img = nativeImage.createFromBuffer(Buffer.from(ICON_PNG_BASE64, 'base64'));
+  // Build a multi-rep image so the icon is crisp on Retina menu bars.
+  const img = nativeImage.createFromBuffer(Buffer.from(ICON_16, 'base64'));
+  img.addRepresentation({
+    scaleFactor: 2,
+    buffer: Buffer.from(ICON_32, 'base64'),
+  });
   img.setTemplateImage(true); // tint to match the menu bar
   return img;
 };
@@ -44,12 +50,13 @@ export const createTray = (): Tray => {
 
 export const getTray = (): Tray | null => tray;
 
-// Briefly mark the icon "active" (a non-template tinted variant) so the user
-// notices something landed, then revert.
+// Briefly mark the icon "active" (non-template = full black, not menu-bar-tinted)
+// so the user notices something landed, then revert.
 export const flashTray = (): void => {
   if (!tray) return;
-  const active = nativeImage.createFromBuffer(Buffer.from(ICON_PNG_BASE64, 'base64'));
-  // non-template so it shows the accent (slightly emphasized) regardless of theme
+  const active = nativeImage.createFromBuffer(Buffer.from(ICON_16, 'base64'));
+  active.addRepresentation({ scaleFactor: 2, buffer: Buffer.from(ICON_32, 'base64') });
+  // non-template so it shows solid (emphasized) regardless of theme
   tray.setImage(active);
   if (highlightTimer) clearTimeout(highlightTimer);
   highlightTimer = setTimeout(() => tray?.setImage(baseIcon()), 1600);

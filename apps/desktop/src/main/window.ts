@@ -20,7 +20,7 @@ export const createPopup = (): BrowserWindow => {
     movable: false,
     transparent: true,
     webPreferences: {
-      preload: path.join(dirname, '../preload/index.js'),
+      preload: path.join(dirname, '../preload/index.cjs'),
       sandbox: false,
       contextIsolation: true,
     },

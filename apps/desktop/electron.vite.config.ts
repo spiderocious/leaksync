@@ -20,16 +20,29 @@ const sharedAlias = {
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()],
+    // Externalize node_modules deps, but BUNDLE the workspace packages — their
+    // source uses NodeNext '.js' import specifiers that Electron's runtime Node
+    // loader can't resolve against the '.ts' files. Bundling lets vite resolve
+    // them at build time.
+    plugins: [externalizeDepsPlugin({ exclude: ['@leaksync/core', '@leaksync/api', '@leaksync/ui'] })],
     resolve: { alias: { '@leaksync/core': pkg('core/src/index.ts') } },
     build: {
-      rollupOptions: { input: { index: path.resolve(dirname, 'src/main/index.ts') } },
+      // Electron's main process loads `electron` as CommonJS. Emit CJS (.cjs) so
+      // named imports from electron work, even though package.json is ESM.
+      rollupOptions: {
+        input: { index: path.resolve(dirname, 'src/main/index.ts') },
+        output: { format: 'cjs', entryFileNames: '[name].cjs' },
+      },
     },
   },
   preload: {
-    plugins: [externalizeDepsPlugin()],
+    plugins: [externalizeDepsPlugin({ exclude: ['@leaksync/core', '@leaksync/api', '@leaksync/ui'] })],
+    resolve: { alias: { '@leaksync/core': pkg('core/src/index.ts') } },
     build: {
-      rollupOptions: { input: { index: path.resolve(dirname, 'src/preload/index.ts') } },
+      rollupOptions: {
+        input: { index: path.resolve(dirname, 'src/preload/index.ts') },
+        output: { format: 'cjs', entryFileNames: '[name].cjs' },
+      },
     },
   },
   renderer: {

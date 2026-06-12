@@ -1,4 +1,5 @@
 import { EventEmitter } from 'node:events';
+import { hostname, userInfo } from 'node:os';
 
 import type { Item } from '@leaksync/core';
 
@@ -52,7 +53,9 @@ class AppStateManager extends EventEmitter {
 
   async createPairCode(): Promise<{ pairingCode: string }> {
     const macName = store.read().macName ?? hostName();
-    const userName = store.read().userName ?? '';
+    // userName is the gift personalisation (Phase 8). Until then, default to the
+    // macOS account name so the backend's non-empty requirement is satisfied.
+    const userName = store.read().userName || defaultUserName();
     const result = await api.createPairCode(macName, userName);
     this.pairingCode = result.pairingCode;
     this.items = [];
@@ -130,10 +133,16 @@ class AppStateManager extends EventEmitter {
 const delay = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 const hostName = (): string => {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    return (require('node:os') as typeof import('node:os')).hostname();
+    return hostname();
   } catch {
     return 'this Mac';
+  }
+};
+const defaultUserName = (): string => {
+  try {
+    return userInfo().username || 'you';
+  } catch {
+    return 'you';
   }
 };
 
