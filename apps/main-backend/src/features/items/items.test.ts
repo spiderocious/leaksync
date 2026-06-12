@@ -16,6 +16,9 @@ const pairFixture = async () => {
   const redeem = await request(app)
     .post('/api/v1/pair/redeem')
     .send({ code: code.body.data.pairingCode, deviceName: 'Phone' });
+  // Fail loudly if redeem didn't succeed (e.g. an unexpected code collision),
+  // rather than throwing an opaque "cannot read deviceToken of undefined".
+  expect(redeem.status, JSON.stringify(redeem.body)).toBe(200);
   const androidToken = redeem.body.data.deviceToken as string;
   return { macToken, androidToken, pairId };
 };

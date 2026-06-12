@@ -1,4 +1,11 @@
-import { MongoClient, type Db } from 'mongodb';
+import {
+  MongoClient,
+  type Collection,
+  type CreateIndexesOptions,
+  type Db,
+  type Document,
+  type IndexSpecification,
+} from 'mongodb';
 
 import { logger } from '@lib/logger.js';
 
@@ -36,21 +43,63 @@ export const closeMongo = async (): Promise<void> => {
 export const pairsCollection = () => getDb().collection<PairDoc>('pairs');
 export const itemsCollection = () => getDb().collection<ItemDoc>('items');
 
-// Indexes — created once on connect. Idempotent (createIndex is a no-op if it
-// already exists with the same spec).
-const ensureIndexes = async (database: Db): Promise<void> => {
-  const pairs = database.collection<PairDoc>('pairs');
-  const items = database.collection<ItemDoc>('items');
+// createIndex is NOT idempotent when an index of the same *name* already exists
+// with different *options* (e.g. flipping sparse → unique). MongoDB raises
+// IndexOptionsConflict (85) / IndexKeySpecsConflict (86). This helper makes
+// index setup self-healing: on a conflict, drop the stale index and recreate it
+// with the desired spec. So changing an index definition in code "just works"
+// on an existing database, without a manual migration.
 
-  // Pairing-code lookup during redeem; sparse since the code is cleared after use.
-  await pairs.createIndex({ pairingCode: 1 }, { sparse: true });
+const INDEX_CONFLICT_CODES = new Set([85, 86]);
+
+const ensureIndex = async (
+  collection: Collection<Document>,
+  spec: IndexSpecification,
+  options: CreateIndexesOptions = {},
+): Promise<void> => {
+  try {
+    await collection.createIndex(spec, options);
+  } catch (err) {
+    const code = (err as { code?: number }).code;
+    if (code !== undefined && INDEX_CONFLICT_CODES.has(code)) {
+      // A same-named index with different options exists — replace it.
+      const name = await deriveIndexName(collection, spec);
+      if (name) {
+        await collection.dropIndex(name).catch(() => undefined);
+        await collection.createIndex(spec, options);
+        logger.warn({ name }, 'reconciled conflicting index (dropped + recreated)');
+        return;
+      }
+    }
+    throw err;
+  }
+};
+
+// Find the existing index name whose key matches the requested spec.
+const deriveIndexName = async (
+  collection: Collection<Document>,
+  spec: IndexSpecification,
+): Promise<string | undefined> => {
+  const wantKey = JSON.stringify(spec);
+  const existing = await collection.indexes();
+  return existing.find((ix) => JSON.stringify(ix.key) === wantKey)?.name;
+};
+
+const ensureIndexes = async (database: Db): Promise<void> => {
+  const pairs = database.collection<PairDoc>('pairs') as unknown as Collection<Document>;
+  const items = database.collection<ItemDoc>('items') as unknown as Collection<Document>;
+
+  // Pairing-code lookup during redeem. UNIQUE + sparse so an active 6-digit code
+  // maps to exactly one pair (sparse → docs without a code are exempt, i.e. all
+  // already-redeemed pairs). createPairCode retries on duplicate-key.
+  await ensureIndex(pairs, { pairingCode: 1 }, { unique: true, sparse: true });
   // TTL on the pairing code: an unredeemed code's pair is cleaned up when it
   // expires. Only docs that still carry codeExpiresAt are affected.
-  await pairs.createIndex({ codeExpiresAt: 1 }, { expireAfterSeconds: 0, sparse: true });
+  await ensureIndex(pairs, { codeExpiresAt: 1 }, { expireAfterSeconds: 0, sparse: true });
 
   // Items: poll by (pairId, seqId), list recent by (pairId, createdAt).
-  await items.createIndex({ pairId: 1, seqId: 1 });
-  await items.createIndex({ pairId: 1, createdAt: -1 });
+  await ensureIndex(items, { pairId: 1, seqId: 1 });
+  await ensureIndex(items, { pairId: 1, createdAt: -1 });
   // 24h auto-delete (PRD §3). createdAt + expireAfterSeconds.
-  await items.createIndex({ createdAt: 1 }, { expireAfterSeconds: 24 * 60 * 60 });
+  await ensureIndex(items, { createdAt: 1 }, { expireAfterSeconds: 24 * 60 * 60 });
 };
