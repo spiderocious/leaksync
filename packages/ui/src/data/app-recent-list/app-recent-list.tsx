@@ -1,3 +1,5 @@
+'use client';
+
 import { Repeat, Show } from 'meemaw';
 import { type DragEvent } from 'react';
 

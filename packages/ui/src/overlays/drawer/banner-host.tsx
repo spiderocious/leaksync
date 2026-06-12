@@ -1,3 +1,5 @@
+'use client';
+
 import { Repeat } from 'meemaw';
 import { useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';

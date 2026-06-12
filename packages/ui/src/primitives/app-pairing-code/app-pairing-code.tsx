@@ -1,3 +1,5 @@
+'use client';
+
 import { Repeat } from 'meemaw';
 import { useId, useRef, useState, type ChangeEvent, type HTMLAttributes } from 'react';
 

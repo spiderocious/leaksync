@@ -1,3 +1,5 @@
+'use client';
+
 import { Case, Clamp, CopyToClipboard, Default, Show, Switch } from 'meemaw';
 import { type DragEvent } from 'react';
 

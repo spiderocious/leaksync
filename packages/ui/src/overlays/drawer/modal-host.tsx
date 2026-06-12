@@ -1,3 +1,5 @@
+'use client';
+
 import { useSyncExternalStore } from 'react';
 
 import { AppModal, CriticalModal, CustomModal } from '../app-modal/app-modal.tsx';

@@ -1,3 +1,5 @@
+'use client';
+
 import { Repeat } from 'meemaw';
 import { type ReactNode } from 'react';
 

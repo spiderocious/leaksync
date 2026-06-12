@@ -1,3 +1,5 @@
+'use client';
+
 import { AppPairingCodeDisplay, AppPairingCodeEntry } from '../../primitives/app-pairing-code/index.ts';
 import { AppStatusDot } from '../../primitives/app-status-dot/index.ts';
 import { AppText } from '../../primitives/app-text/index.ts';

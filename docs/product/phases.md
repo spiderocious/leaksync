@@ -19,7 +19,7 @@ See the locked spec in conversation for the full architecture. Quick recap:
 
 ---
 
-## Phase 1 — Rebrand the repo
+## Phase 1 — Rebrand the repo ✅ DONE
 
 **Goal:** turn the untouched template into the LeakSync project so every later
 phase builds on the right names.
@@ -37,14 +37,18 @@ phase builds on the right names.
 **Surfaces:** monorepo wiring only.
 
 **Done when:**
-- [ ] `@repo` appears nowhere (`grep -r '@repo' --include='*.{ts,tsx,json,mjs}'` is clean).
-- [ ] No `example` / `ExampleItem` references remain.
-- [ ] `pnpm exec nx run-many -t typecheck` passes.
-- [ ] `pnpm exec nx run-many -t build` passes.
+- [x] `@repo` appears nowhere (`grep -r '@repo' --include='*.{ts,tsx,json,mjs}'` is clean).
+- [x] No `example` / `ExampleItem` references remain.
+- [x] `pnpm exec nx run-many -t typecheck` passes.
+- [x] `pnpm exec nx run-many -t build` passes.
+
+> Also done out-of-band: **portless `pdev` targets** wired for every app
+> (`portless.json`, per-app `pdev` Nx target, `*.leaksync.localhost`). See
+> [docs/run.md](../run.md) "Portless / pdev".
 
 ---
 
-## Phase 2 — Design-system preview page (scaffold only)
+## Phase 2 — Design-system preview page (scaffold only) ✅ DONE
 
 **Goal:** stand up the preview gallery harness — the registry-driven sidebar +
 lazy-loaded "part" canvas — mirroring
@@ -66,14 +70,18 @@ components.** A handful of placeholder parts prove the wiring.
 **Surfaces:** web only.
 
 **Done when:**
-- [ ] Preview screen loads, sidebar lists groups, selecting a part renders it in
+- [x] Preview screen loads, sidebar lists groups, selecting a part renders it in
       the canvas with Suspense fallback.
-- [ ] Adding a component = one new part file + one `PARTS` entry, nothing else.
-- [ ] Typecheck + build pass.
+- [x] Adding a component = one new part file + one `PARTS` entry, nothing else.
+- [x] Typecheck + build pass.
+
+> Built in `apps/web/src/features/preview` at `/preview`. The registry was later
+> extended by Phase 3 to ~17 parts; groups are now Foundation · Primitives ·
+> Display · Overlays · Surfaces.
 
 ---
 
-## Phase 3 — Design system (separate agent)
+## Phase 3 — Design system (separate agent) ✅ DONE
 
 **Goal:** build the real LeakSync design system into `@leaksync/ui` — tokens
 (Fraunces display type, color/spacing), primitives, and the composed components
@@ -91,9 +99,23 @@ states, About/love-note layout). Each component registered as a preview part.
 - Every new component added to the preview registry.
 
 **Done when (verified by us on return):**
-- [ ] All PRD-referenced components exist in `@leaksync/ui` and render in preview.
-- [ ] Tokens consistent across web + Electron consumers.
-- [ ] Typecheck + build pass.
+- [x] All PRD-referenced components exist in `@leaksync/ui` and render in preview.
+- [x] Tokens consistent across web + Electron consumers (mirrored into all three
+      `tailwind.config.ts` + `styles.css`).
+- [x] Typecheck + build pass.
+
+> **Delivered:** an "e-ink quietude" system — tokens `paper`/`ink`/`hair`/`moss`/
+> `warn` (no red, no pure black/white), three faces via `@fontsource`
+> (Literata/Inter/JetBrains Mono). Components cover every PRD surface: item row,
+> pairing-code display + entry, status dot, recent list, empty/skeleton states,
+> modal/toast/banner + imperative `DrawerService`, menu-bar popup, pairing scenes,
+> arrival notification, Android share-confirm/home, settings + About.
+>
+> **Fix applied on review:** the Next.js `website` build broke because the
+> `@leaksync/ui` barrel pulls interactive (hook/event-handler) components into a
+> Server Component. Added `'use client'` to the 14 interactive UI files. Build
+> green again. Lesson for future UI work: interactive components in a barrel
+> consumed by an RSC app must carry `'use client'`.
 
 ---
 

@@ -1,3 +1,5 @@
+'use client';
+
 import { Show } from 'meemaw';
 import { type ReactNode } from 'react';
 

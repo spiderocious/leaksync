@@ -1,3 +1,5 @@
+'use client';
+
 import { type DragEvent, type ReactNode } from 'react';
 
 import { AppRecentList } from '../../data/app-recent-list/index.ts';

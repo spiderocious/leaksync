@@ -1,3 +1,5 @@
+'use client';
+
 import { Clamp, Switch, Case, Default } from 'meemaw';
 
 import { AppTrayIcon } from '../../brand/app-logo/index.ts';

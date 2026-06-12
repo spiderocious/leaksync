@@ -1,3 +1,5 @@
+'use client';
+
 import { Repeat } from 'meemaw';
 
 import { AppIcon } from '../../brand/app-logo/index.ts';

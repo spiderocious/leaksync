@@ -1,3 +1,5 @@
+'use client';
+
 import { useRef, useState, type PointerEvent } from 'react';
 
 import { AppToast } from '../app-feedback/app-feedback.tsx';
