@@ -9,10 +9,27 @@
 ## Verdict
 
 The pairing, items, and realtime surfaces match the documented contract. **51/52 checks
-pass.** Source audit, lint, and typecheck are clean. The one issue is a **flaky test rooted
-in a real correctness defect**: the 6-digit pairing code is **not unique**, and the redeem
-lookup is ambiguous under collision (see BUG-01). Low probability at one-user scale, but it
-is a genuine invariant violation and should be fixed or explicitly accepted.
+pass.** Source audit, lint, and typecheck are clean. The one issue was a **flaky test rooted
+in a real correctness defect**: the 6-digit pairing code was **not unique**, and the redeem
+lookup was ambiguous under collision (BUG-01).
+
+> **✅ BUG-01 FIXED (2026-06-12).** `pairs.pairingCode` now has a **unique** sparse index
+> and `createPairCode` **generates-and-retries** on a duplicate-key collision
+> ([pairing.service.ts](../../../apps/main-backend/src/features/pairing/pairing.service.ts)),
+> making "code → exactly one pair" a hard DB guarantee. Two regression tests added (unique
+> across 25 created codes; duplicate insert rejected with `11000`), and `pairFixture` now
+> asserts `redeem.status === 200` to fail loudly. Suite is **23/23, stable across repeated
+> runs**. Tests already target `leaksync_test` (separate DB).
+>
+> **✅ Index-migration crash FIXED (2026-06-12).** Flipping the existing `pairingCode` index
+> to `unique` made `nx run main-backend:dev` crash on boot with `IndexKeySpecsConflict (86)`
+> on databases that still held the old non-unique index — `createIndex` is not idempotent
+> when index *options* change. `ensureIndexes` is now **self-healing**
+> ([mongo.ts](../../../apps/main-backend/src/lib/db/mongo.ts)): on a conflict (code 85/86)
+> it drops the stale same-key index and recreates it with the new spec (logs a `warn`).
+> Verified live — forced the old non-unique index, booted, server reconciled to unique and
+> started cleanly. Any future index-definition change now migrates automatically, no manual
+> `mongosh` needed.
 
 ---
 

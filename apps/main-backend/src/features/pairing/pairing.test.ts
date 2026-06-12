@@ -2,6 +2,7 @@ import type { Express } from 'express';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
+import type { PairDoc } from '../../lib/db/pairs.repo.js';
 import { setupApp, teardown, truncate } from '../../test/harness.js';
 
 let app: Express;
@@ -78,6 +79,36 @@ describe('POST /pair/redeem', () => {
       .send({ code: 'abc', deviceName: 'x' });
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('validation_error');
+  });
+});
+
+describe('pairing code uniqueness (BUG-01 regression)', () => {
+  it('two created pairs never share an active code', async () => {
+    const codes = new Set<string>();
+    for (let i = 0; i < 25; i += 1) {
+      const res = await createCode();
+      expect(res.status).toBe(201);
+      const code = res.body.data.pairingCode as string;
+      expect(codes.has(code)).toBe(false); // unique across all active codes
+      codes.add(code);
+    }
+  });
+
+  it('enforces a unique index on pairingCode (duplicate insert rejected)', async () => {
+    const { getDb } = await import('../../lib/db/mongo.js');
+    const pairs = getDb().collection<PairDoc>('pairs');
+    const base = {
+      macName: 'M',
+      userName: 'U',
+      devices: [],
+      seqCounter: 0,
+      codeExpiresAt: new Date(Date.now() + 600_000),
+      createdAt: new Date(),
+    };
+    await pairs.insertOne({ _id: 'p1', pairingCode: '424242', ...base });
+    await expect(
+      pairs.insertOne({ _id: 'p2', pairingCode: '424242', ...base }),
+    ).rejects.toMatchObject({ code: 11000 }); // duplicate-key
   });
 });
 

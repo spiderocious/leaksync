@@ -13,6 +13,10 @@ const newId = (): string => randomBytes(12).toString('hex');
 const sixDigitCode = (): string =>
   randomInt(0, 1_000_000).toString().padStart(PAIRING.CODE_LENGTH, '0');
 
+// Mongo duplicate-key error code (unique index violation).
+const isDuplicateKey = (err: unknown): boolean =>
+  typeof err === 'object' && err !== null && (err as { code?: number }).code === 11000;
+
 // ---------- Mac creates a pair + gets a code ----------
 export const createPairCode = async (macName: string, userName: string): Promise<PairCodeResult> => {
   const pairId = newId();
@@ -20,20 +24,38 @@ export const createPairCode = async (macName: string, userName: string): Promise
   const now = new Date();
   const expiresAt = new Date(now.getTime() + PAIRING.CODE_TTL_MS);
 
-  const doc: PairDoc = {
-    _id: pairId,
-    macName,
-    userName,
-    devices: [{ deviceId: macDeviceId, platform: 'mac', deviceName: macName, pairedAt: now }],
-    seqCounter: 0,
-    pairingCode: sixDigitCode(),
-    codeExpiresAt: expiresAt,
-    createdAt: now,
-  };
-  await pairsRepo.insert(doc);
+  // The pairingCode has a UNIQUE index, so "code → one pair" is a hard DB
+  // guarantee. On the rare collision (another unredeemed code is identical),
+  // regenerate and retry. With at most one active phone-pairing at a time, a
+  // collision is astronomically unlikely; the retry makes it impossible.
+  let pairingCode = '';
+  let inserted = false;
+  for (let attempt = 0; attempt < 8 && !inserted; attempt += 1) {
+    pairingCode = sixDigitCode();
+    const doc: PairDoc = {
+      _id: pairId,
+      macName,
+      userName,
+      devices: [{ deviceId: macDeviceId, platform: 'mac', deviceName: macName, pairedAt: now }],
+      seqCounter: 0,
+      pairingCode,
+      codeExpiresAt: expiresAt,
+      createdAt: now,
+    };
+    try {
+      await pairsRepo.insert(doc);
+      inserted = true;
+    } catch (err) {
+      if (!isDuplicateKey(err)) throw err;
+      // collided on pairingCode — loop and try a fresh code with the same pairId
+    }
+  }
+  if (!inserted) {
+    throw new ConflictError('Could not allocate a unique pairing code, please retry');
+  }
 
   const deviceToken = signDeviceToken({ pairId, deviceId: macDeviceId, platform: 'mac' });
-  return { pairId, pairingCode: doc.pairingCode!, expiresAt: expiresAt.toISOString(), deviceToken };
+  return { pairId, pairingCode, expiresAt: expiresAt.toISOString(), deviceToken };
 };
 
 // ---------- Android redeems the code ----------
