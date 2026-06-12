@@ -47,6 +47,58 @@ body {
   animation: pulse-dot 2.6s ease-in-out infinite;
 }
 
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marquee var(--marquee-duration, 28s) linear infinite;
+}
+
+.marquee-track.marquee-reverse {
+  animation-direction: reverse;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes bell-swing {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(14deg);
+  }
+  40% {
+    transform: rotate(-10deg);
+  }
+  60% {
+    transform: rotate(6deg);
+  }
+  80% {
+    transform: rotate(-3deg);
+  }
+}
+
+.bell-swing {
+  animation: bell-swing 2.8s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+@keyframes glow-pulse {
+  50% {
+    box-shadow: 0 0 60px 12px rgba(255, 198, 54, 0.35);
+  }
+}
+
+.glow-pulse {
+  animation: glow-pulse 3.2s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     opacity: 1;
@@ -55,7 +107,10 @@ body {
   }
 
   .float-anim,
-  .pulse-dot {
+  .pulse-dot,
+  .marquee-track,
+  .bell-swing,
+  .glow-pulse {
     animation: none;
   }
 }
