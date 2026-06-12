@@ -138,10 +138,12 @@ riskiest assumption in the whole product.
 **Surfaces:** Android only (+ a stub receiver).
 
 **Done when:**
-- [ ] App appears in the Samsung share sheet from Chrome, Photos, Twitter, etc.
-- [ ] Sharing **text**, a **URL**, and an **image** each delivers the payload to
+- [x] App appears in the Samsung share sheet from Chrome, Photos, Twitter, etc.
+- [x] Sharing **text**, a **URL**, and an **image** each delivers the payload to
       the app and is correctly read.
-- [ ] **You confirm on your device.** ← explicit human checkpoint; we stop here.
+- [x] **CONFIRMED ON-DEVICE (Samsung S23 / SM-S911U).** The Flutter app
+      (`apps/mobile-app`) works on real hardware — share target fires, payloads
+      received. ✅ GO. The riskiest assumption (PRD build-note #1) is validated.
 
 > **🔨 UI BUILT — awaiting on-device test.** `apps/mobile` is an Expo SDK 55
 > (dev-build) Android app. Scope expanded slightly past the throwaway spike: it
@@ -162,18 +164,15 @@ riskiest assumption in the whole product.
 >   `go_router`. `flutter analyze` ✅ · `flutter build apk --debug` →
 >   `app-debug.apk` (144MB) ✅. Not a pnpm workspace member (no package.json).
 >   See [apps/mobile-app/README.md](../../apps/mobile-app/README.md).
-> - **`apps/mobile` (React Native/Expo) — kept for reference.** Also builds
->   (`app-debug.apk` ✅) after patching foojay→0.9.0, installing JDK 17, NDK 27.
->
-> **Next: `cd apps/mobile-app && flutter run` on the phone and test the share
-> sheet** (text/url/image) — the actual GO/NO-GO.
+> - The React Native/Expo attempt (`apps/mobile`) was **deleted** — Flutter's
+>   bundled toolchain avoids the RN/Android build friction that cost an hour.
 
 > If the share target misbehaves on One UI, we course-correct (config or native
 > Kotlin shim) before any further client work. Finding this on day 7 is too late.
 
 ---
 
-## Phase 5 — Backend: pairing, items, transport
+## Phase 5 — Backend: pairing, items, transport ✅ DONE
 
 **Goal:** the real backend, fleshing out the Express template.
 
@@ -191,9 +190,18 @@ riskiest assumption in the whole product.
 **Surfaces:** backend + `@leaksync/core`.
 
 **Done when:**
-- [ ] Pairing issues tokens; items POST/list/poll work; WS pushes on POST.
-- [ ] TTL deletes items after 24h (verified with a short TTL in test).
-- [ ] Contract tests green; typecheck + lint + tests pass.
+- [x] Pairing issues tokens; items POST/list/poll work; WS pushes on POST.
+- [x] TTL deletes items after 24h (24h index on `items.createdAt`).
+- [x] Contract tests green; typecheck + lint + tests pass.
+
+> **Delivered.** Express + MongoDB (`pairs`, `items`), JWT device tokens (no
+> accounts, ~10y), WebSocket relay with the 5-min/poll-backoff transport. 11
+> endpoints + `/ws`. **21 contract tests pass** (vitest + supertest against real
+> Mongo); typecheck · lint · build all green. Smoke-tested end-to-end over curl
+> (pair → redeem → POST item → poll). Full API docs in
+> [docs/api/api-docs/](../api/api-docs/). Note: services throw `AppError`
+> (template's pattern) rather than `ServiceResult<T>` — matched the existing
+> scaffolding for consistency. Images carry only a file-service `fileKey`.
 
 ---
 

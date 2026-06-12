@@ -34,7 +34,7 @@ cp apps/admin-web/.env.example    apps/admin-web/.env
 cp apps/website/.env.example      apps/website/.env
 
 # In separate terminals
-pnpm -F @leaksync/main-backend dev    # http://localhost:8081
+pnpm -F @leaksync/main-backend dev    # http://localhost:9090
 pnpm -F @leaksync/web dev             # http://localhost:5173
 ```
 

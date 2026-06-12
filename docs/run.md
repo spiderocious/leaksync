@@ -6,7 +6,7 @@ The workspace is a pnpm + Nx monorepo. Every app lives under `apps/`; every shar
 
 - Node.js **>= 20**
 - pnpm **>= 9.15** (`brew install pnpm` or `corepack enable && corepack prepare pnpm@9.15.9 --activate`)
-- Ports free locally: **8081** (main-backend), **5173** (web), **5174** (admin-web), **3000** (website), **4173/4174** (vite preview)
+- Ports free locally: **9090** (main-backend), **5173** (web), **5174** (admin-web), **3000** (website), **4173/4174** (vite preview)
 
 ## First-time setup
 
@@ -24,7 +24,7 @@ Set real secrets in every `.env` before running in any non-local environment. JW
 
 | App            | Stack      | Dev port | Prod cmd               | Notes                          |
 | -------------- | ---------- | -------- | ---------------------- | ------------------------------ |
-| `main-backend` | Express    | 8081     | `pnpm start`           | Public HTTP API (`/api/v1/*`)  |
+| `main-backend` | Express    | 9090     | `pnpm start`           | Public HTTP API (`/api/v1/*`)  |
 | `web`          | Vite/React | 5173     | `pnpm start` (preview) | End-user app                   |
 | `admin-web`    | Vite/React | 5174     | `pnpm start` (preview) | Operations console             |
 | `website`      | Next.js    | 3000     | `pnpm start`           | Marketing / public website     |
@@ -50,7 +50,7 @@ pnpm exec nx run web:dev
 In separate terminals:
 
 ```bash
-pnpm -F @leaksync/main-backend dev        # 8081
+pnpm -F @leaksync/main-backend dev        # 9090
 pnpm -F @leaksync/web dev                 # 5173 → calls main-backend
 pnpm -F @leaksync/website dev             # 3000 → links to web
 ```
@@ -83,7 +83,7 @@ work on the repo's Node ≥ 20 floor. The subdomain base is defined in
 in a foreground terminal once, not unattended.
 
 **Cross-app API:** under portless the backend is at
-`https://api.leaksync.localhost`, not `http://localhost:8081`. To point a
+`https://api.leaksync.localhost`, not `http://localhost:9090`. To point a
 frontend at it for a portless session, set
 `VITE_API_BASE_URL=https://api.leaksync.localhost` in that app's `.env` (see the
 note in each `.env.example`). The default keeps the plain fixed-port flow working.
@@ -142,7 +142,7 @@ Nx caches results — subsequent runs without source changes finish in seconds.
 ## Health check
 
 ```bash
-curl http://localhost:8081/api/v1/health           # main-backend
+curl http://localhost:9090/api/v1/health           # main-backend
 ```
 
 ## Troubleshooting
