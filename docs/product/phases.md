@@ -152,10 +152,21 @@ riskiest assumption in the whole product.
 > pick** via `expo-image-picker`, and **in-app text compose**. No API yet — sends
 > are recorded locally; the backend POST drops in at Phase 5/7.
 >
-> Verified without hardware: typecheck ✅ · lint ✅ · `expo export` bundles the
-> Android JS ✅ (1229 modules). **Next: run on your phone** per
-> [apps/mobile/README.md](../../apps/mobile/README.md) — needs Android SDK/adb
-> (not yet installed on this machine) + `expo run:android`. This is the GO/NO-GO.
+> **Two implementations exist — Flutter is now primary:**
+>
+> - **`apps/mobile-app` (Flutter) — PRIMARY.** Built after the RN/Android
+>   toolchain proved too painful (an hour of foojay/JDK/NDK/disk fights). Flutter
+>   bundles its own Gradle+JDK, so it builds clean with no Metro/USB babysitting.
+>   Full UI, e-ink DS ported to Dart (`lib/theme` + `lib/ui`), share-intent via
+>   `receive_sharing_intent`, photo/video via `image_picker`, routing via
+>   `go_router`. `flutter analyze` ✅ · `flutter build apk --debug` →
+>   `app-debug.apk` (144MB) ✅. Not a pnpm workspace member (no package.json).
+>   See [apps/mobile-app/README.md](../../apps/mobile-app/README.md).
+> - **`apps/mobile` (React Native/Expo) — kept for reference.** Also builds
+>   (`app-debug.apk` ✅) after patching foojay→0.9.0, installing JDK 17, NDK 27.
+>
+> **Next: `cd apps/mobile-app && flutter run` on the phone and test the share
+> sheet** (text/url/image) — the actual GO/NO-GO.
 
 > If the share target misbehaves on One UI, we course-correct (config or native
 > Kotlin shim) before any further client work. Finding this on day 7 is too late.

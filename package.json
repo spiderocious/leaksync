@@ -36,5 +36,10 @@
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/literata": "^5.2.8"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@react-native/gradle-plugin@0.83.6": "patches/@react-native__gradle-plugin@0.83.6.patch"
+    }
   }
 }
