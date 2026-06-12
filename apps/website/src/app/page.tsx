@@ -7,11 +7,11 @@ export default function HomePage() {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-20">
-      <AppText variant="caption">leaksync</AppText>
-      <AppText variant="display-1" className="mt-2 text-brand-900">
+      <AppText variant="overline">leaksync</AppText>
+      <AppText variant="display" as="h1" className="mt-2 !text-[44px] !tracking-[-0.02em]">
         Your phone to your Mac, instantly.
       </AppText>
-      <AppText variant="body" className="mt-6 max-w-2xl text-ink-700">
+      <AppText variant="read" className="mt-6 max-w-2xl text-ink-2">
         Share a tweet, an image, a link or a note from any app on your phone and it
         lands on your Mac within a second. Pair once, share forever.
       </AppText>
@@ -19,13 +19,13 @@ export default function HomePage() {
       <div className="mt-10 flex flex-wrap gap-3">
         <Link
           href={appUrl}
-          className="inline-flex items-center justify-center rounded-md bg-brand-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-700"
+          className="inline-flex items-center justify-center rounded-card border border-ink px-5 py-2.5 text-sm font-medium text-ink hover:bg-ink hover:text-paper"
         >
           Open the app
         </Link>
         <Link
           href="/pricing"
-          className="inline-flex items-center justify-center rounded-md border border-brand-900/20 px-5 py-2.5 text-sm font-medium text-brand-900 hover:bg-brand-900/5"
+          className="inline-flex items-center justify-center rounded-card border border-hair px-5 py-2.5 text-sm font-medium text-ink-2 hover:border-ink hover:text-ink"
         >
           Pricing
         </Link>
@@ -43,11 +43,11 @@ export default function HomePage() {
 
 function Card({ title, body }: { title: string; body: string }) {
   return (
-    <div className="rounded-lg border border-brand-900/10 bg-white p-5 shadow-sm">
-      <AppText variant="heading-3" className="text-brand-900">
+    <div className="rounded-card border border-hair bg-paper-sheet p-5">
+      <AppText variant="read" className="!font-medium !text-[16px]">
         {title}
       </AppText>
-      <AppText variant="body-sm" className="mt-2 text-ink-700">
+      <AppText variant="body" className="mt-2 text-ink-3">
         {body}
       </AppText>
     </div>

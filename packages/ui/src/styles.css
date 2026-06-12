@@ -1,18 +1,107 @@
-/* Optional shared base styles. Apps can import this from `@leaksync/ui/styles.css`
-   on top of their own Tailwind layer. Mirror the tokens in
-   packages/ui/src/theme/index.ts when re-theming. */
+/* LeakSync UI — e-ink quietude tokens.
+   The single source of truth for the palette. Mirrors the Studio spec at
+   design-system/projects/leaksync/preview/_foundation.css. Apps import this
+   via `@leaksync/ui/styles.css` on top of their own Tailwind layer.
+
+   Stance: an e-reader on a bedside table. Paper, not screen — no glow, no
+   gradient, no pure white or black. One muted moss accent, used at most once
+   per screen. The page-refresh blink is the only motion. */
 
 :root {
-  --brand: #1e3a8a;
-  --brand-strong: #1d4ed8;
-  --surface: #f8fafc;
-  --accent: #ea580c;
-  --ink: #0f172a;
+  /* Paper & ink — greyscale, six steps, warm-grey */
+  --paper: #e8e6e1; /* the canvas */
+  --paper-2: #e0ddd6; /* recessed surface / pressed row */
+  --paper-3: #d9d5cc; /* deepest recess (thumb wells, skeleton) */
+  --sheet: #edebe6; /* a raised sheet (the popup body) */
+  --ink: #23211c; /* warm near-black — primary text */
+  --ink-2: #55524a; /* body / secondary */
+  --ink-3: #83806f; /* meta, labels, tertiary */
+  --ink-4: #a8a493; /* faintest — placeholders, disabled */
+  --hair: #cfcbc0; /* the hairline — every separator */
+  --hair-soft: #dad6cc; /* an even quieter divider */
+  --rule: #23211c; /* the rare heavy ink rule (header underline) */
+
+  /* The ONE accent — muted moss. Used at most once per screen, never a fill. */
+  --moss: #7e9466;
+  --moss-deep: #61774a; /* pressed/hover step (rare) */
+  --moss-faint: #c5cfb6; /* copied-row wash (rare) */
+
+  /* Status — kept greyscale; meaning carried by text. No critical-red. */
+  --live: var(--moss); /* connected — the one moss use */
+  --idle: #a8a493; /* offline — hollow grey ring */
+  --warn: #9a7b3a; /* muted ochre — "couldn't send" only */
+  --warn-faint: #e6dec9;
+
+  /* Type */
+  --font-serif: 'Literata', 'Newsreader', Georgia, serif; /* the reading face */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif; /* chrome */
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace; /* record */
+
+  /* Geometry — flat paper, near-square */
+  --r-sharp: 1px;
+  --r-card: 2px;
+  --r-pill: 9999px;
+  --gutter: 18px;
+  --pop-w: 360px;
+  --pop-h: 480px;
+
+  /* The single allowed depth — only the floating popup/modal casts it. */
+  --pop-shadow: 0 18px 50px -18px rgba(35, 33, 28, 0.32);
+
+  /* Motion — the page-refresh blink is essentially all there is. */
+  --blink: 0.42s steps(1, end);
 }
 
 html,
 body {
-  font-family: 'Inter', system-ui, sans-serif;
-  background: var(--surface);
+  font-family: var(--font-sans);
+  background: var(--paper);
   color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* The faint fiber texture — a whisper of grain at ~2%, felt not seen. */
+.ls-fiber {
+  background-image: radial-gradient(rgba(35, 33, 28, 0.02) 0.5px, transparent 0.5px);
+  background-size: 3px 3px;
+}
+
+/* The page-refresh blink — the only motion idiom. */
+@keyframes ls-eink-blink {
+  0%,
+  100% {
+    filter: none;
+  }
+  46%,
+  54% {
+    filter: invert(1);
+  }
+}
+.ls-blink {
+  animation: ls-eink-blink var(--blink);
+}
+/* The reconnecting dot: a slow, repeating page-refresh blink. No spinner. */
+.ls-blink-loop {
+  animation: ls-eink-blink 1.2s steps(1, end) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ls-blink,
+  .ls-blink-loop {
+    animation: none;
+  }
+}
+
+/* Thin paper scrollbars. */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--hair);
+  border-radius: 9999px;
+  border: 2px solid var(--paper);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }

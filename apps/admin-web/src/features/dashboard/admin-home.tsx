@@ -6,11 +6,11 @@ export function AdminHome() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <AppText variant="caption">admin</AppText>
-      <AppText variant="heading-1" className="mt-2 text-brand-900">
+      <AppText variant="overline">admin</AppText>
+      <AppText variant="display" as="h1" className="mt-2 !text-[30px] !tracking-[-0.01em]">
         Platform operations
       </AppText>
-      <AppText variant="body" className="mt-4 text-ink-700">
+      <AppText variant="read" className="mt-4 text-ink-2">
         Manage users, audit logs and platform-level configuration. Placeholder
         console — wire the tiles to real data as features land.
       </AppText>
@@ -30,10 +30,10 @@ export function AdminHome() {
 
 function Tile({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
-    <div className="rounded-lg border border-brand-900/10 bg-white p-4 shadow-sm">
-      <AppText variant="caption">{label}</AppText>
-      <p className="mt-2 font-serif text-2xl text-brand-900">{value}</p>
-      <p className="mt-1 text-xs text-ink-700">{hint}</p>
+    <div className="rounded-card border border-hair bg-paper-sheet p-4">
+      <AppText variant="overline">{label}</AppText>
+      <p className="mt-2 font-serif text-2xl text-ink">{value}</p>
+      <p className="mt-1 text-xs text-ink-3">{hint}</p>
     </div>
   );
 }

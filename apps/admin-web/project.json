@@ -12,6 +12,10 @@
       "executor": "nx:run-commands",
       "options": { "command": "pnpm dev", "cwd": "apps/admin-web" }
     },
+    "pdev": {
+      "executor": "nx:run-commands",
+      "options": { "command": "pnpm exec portless admin.leaksync pnpm dev", "cwd": "apps/admin-web" }
+    },
     "build": {
       "executor": "nx:run-commands",
       "options": { "command": "pnpm build", "cwd": "apps/admin-web" },

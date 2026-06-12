@@ -2,7 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 
 import { ROUTES } from '@leaksync/core';
 
-import { AdminHome } from '@features/dashboard/admin-home.tsx';
+import { AdminHome } from '@features/dashboard/admin-home';
 
 export function AppRoutes() {
   return (

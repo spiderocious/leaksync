@@ -1,7 +1,7 @@
 import { Suspense, useState } from 'react';
 
-import { DEFAULT_PART_ID, findPart } from '../shared/registry.ts';
-import { PreviewSidebar } from './parts/preview-sidebar.tsx';
+import { DEFAULT_PART_ID, findPart } from '../shared/registry';
+import { PreviewSidebar } from './parts/preview-sidebar';
 
 export function PreviewScreen() {
   const [activeId, setActiveId] = useState(DEFAULT_PART_ID);
@@ -10,7 +10,7 @@ export function PreviewScreen() {
   const ActivePart = part?.Component;
 
   return (
-    <div className="grid h-screen grid-cols-[300px_1fr] overflow-hidden bg-surface-50">
+    <div className="grid h-screen grid-cols-[300px_1fr] overflow-hidden bg-paper">
       <PreviewSidebar activeId={activeId} onSelect={setActiveId} />
 
       <main className="flex min-h-0 min-w-0 flex-col bg-white">

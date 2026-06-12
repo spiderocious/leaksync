@@ -55,6 +55,39 @@ pnpm -F @leaksync/web dev                 # 5173 → calls main-backend
 pnpm -F @leaksync/website dev             # 3000 → links to web
 ```
 
+## Portless / pdev — stable `*.leaksync.localhost` URLs
+
+[Portless](https://portless.sh) gives every app a stable HTTPS subdomain instead
+of a fixed port, so apps never fight over ports. Each app has a `pdev` Nx target
+alongside `dev`. Portless assigns a free port via `PORT` and serves the app over
+HTTPS at its subdomain.
+
+| App            | Portless URL                        | `pdev` target           |
+| -------------- | ----------------------------------- | ----------------------- |
+| `web`          | https://web.leaksync.localhost      | `nx run web:pdev`         |
+| `admin-web`    | https://admin.leaksync.localhost    | `nx run admin-web:pdev`   |
+| `website`      | https://www.leaksync.localhost      | `nx run website:pdev`     |
+| `main-backend` | https://api.leaksync.localhost      | `nx run main-backend:pdev`|
+
+```bash
+nx run web:pdev          # one app
+pnpm pdev                # all apps (nx run-many -t pdev)
+```
+
+**Requirements:** Portless needs **Node ≥ 24**. The plain `dev` targets still
+work on the repo's Node ≥ 20 floor. The subdomain base is defined in
+`portless.json` at the repo root; the names also appear in each
+`apps/*/project.json` `pdev` command (see the rebrand note in `CLAUDE.md`).
+
+**First run** binds port 443 and prompts for `sudo` to trust a local CA — run it
+in a foreground terminal once, not unattended.
+
+**Cross-app API:** under portless the backend is at
+`https://api.leaksync.localhost`, not `http://localhost:8081`. To point a
+frontend at it for a portless session, set
+`VITE_API_BASE_URL=https://api.leaksync.localhost` in that app's `.env` (see the
+note in each `.env.example`). The default keeps the plain fixed-port flow working.
+
 ## Building
 
 Each app has a `build` target that produces a `dist/` (or `.next/` for the website). pnpm dependency graph + Nx caching mean shared packages build automatically when an app needs them.

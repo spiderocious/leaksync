@@ -1,0 +1,9 @@
+{
+  "$schema": "https://portless.sh/schema.json",
+  "apps": {
+    "apps/web": { "name": "web.leaksync" },
+    "apps/admin-web": { "name": "admin.leaksync" },
+    "apps/website": { "name": "www.leaksync" },
+    "apps/main-backend": { "name": "api.leaksync" }
+  }
+}

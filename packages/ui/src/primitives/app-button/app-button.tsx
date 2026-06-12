@@ -1,50 +1,44 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 
-import { cn } from '../../utils/cn.js';
+import { cn } from '../../utils/cn.ts';
 
-export type AppButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+// AppButton — e-ink has almost no buttons. Almost every action is "tap the
+// item"; what's left is quiet text actions and exactly ONE bordered button for
+// the single deliberate moment (pairing). No fills, no colour, no shadow.
+// Spec: design-system/projects/leaksync/preview/10-buttons.html
+export type AppButtonVariant =
+  | 'text' // the default — quiet, underline on hover
+  | 'quiet' // even quieter (ink-3) — footer secondary
+  | 'box' // the ONE bordered button — pairing; fills with ink on hover
+  | 'danger'; // Unpair — quiet text, NOT red (this product has no red)
 
 export interface AppButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: AppButtonVariant;
-  loading?: boolean;
   leadingIcon?: ReactNode;
   trailingIcon?: ReactNode;
 }
 
-// Tokens mirror packages/ui/src/theme/index.ts (brand / accent). Kept as
-// classes here so the primitive stays usable without a Tailwind theme merge.
+const BASE =
+  'inline-flex items-center justify-center gap-2 font-sans transition-colors disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none';
+
 const VARIANT_CLASSES: Record<AppButtonVariant, string> = {
-  primary:
-    'bg-[#1e3a8a] text-white hover:bg-[#1d4ed8] focus-visible:ring-[#1d4ed8] disabled:opacity-60',
-  secondary:
-    'bg-[#f1f5f9] text-[#1e3a8a] hover:bg-[#e2e8f0] focus-visible:ring-[#1e3a8a] disabled:opacity-60',
-  ghost:
-    'bg-transparent text-[#1e3a8a] hover:bg-[#1e3a8a]/5 focus-visible:ring-[#1e3a8a] disabled:opacity-60',
+  text: 'border-b border-transparent px-0.5 py-1.5 text-[12px] font-medium text-ink-2 hover:border-ink hover:text-ink',
+  quiet:
+    'border-b border-transparent px-0.5 py-1.5 text-[12px] font-medium text-ink-3 hover:border-ink hover:text-ink',
+  box: 'rounded-card border border-ink px-[18px] py-[9px] text-[12px] font-medium text-ink hover:bg-ink hover:text-paper',
   danger:
-    'bg-[#ea580c] text-white hover:bg-[#c2410c] focus-visible:ring-[#ea580c] disabled:opacity-60',
+    'border-b border-transparent px-0.5 py-1.5 text-[12px] font-medium text-ink-2 hover:border-ink hover:text-ink',
 };
 
 export const AppButton = forwardRef<HTMLButtonElement, AppButtonProps>(function AppButton(
-  { variant = 'primary', className, loading, leadingIcon, trailingIcon, children, disabled, ...rest },
+  { variant = 'text', className, leadingIcon, trailingIcon, children, ...rest },
   ref,
 ) {
   return (
-    <button
-      ref={ref}
-      disabled={disabled || loading}
-      className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2',
-        'text-sm font-medium transition-colors',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-        'disabled:cursor-not-allowed',
-        VARIANT_CLASSES[variant],
-        className,
-      )}
-      {...rest}
-    >
-      {leadingIcon ? <span className="-ml-0.5">{leadingIcon}</span> : null}
-      <span>{loading ? 'Loading…' : children}</span>
-      {trailingIcon ? <span className="-mr-0.5">{trailingIcon}</span> : null}
+    <button ref={ref} className={cn(BASE, VARIANT_CLASSES[variant], className)} {...rest}>
+      {leadingIcon ? <span className="-ml-0.5 flex">{leadingIcon}</span> : null}
+      <span>{children}</span>
+      {trailingIcon ? <span className="-mr-0.5 flex">{trailingIcon}</span> : null}
     </button>
   );
 });

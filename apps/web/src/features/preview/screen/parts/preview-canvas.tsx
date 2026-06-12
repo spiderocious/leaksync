@@ -12,13 +12,13 @@ interface PageHeadProps {
 export function PageHead({ index, title, subtitle }: PageHeadProps) {
   return (
     <div className="mb-8">
-      <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-slate-400">
+      <span className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-ink-3">
         {index}
       </span>
-      <h2 className="mt-2 font-serif text-[34px] font-bold leading-none tracking-[-0.02em] text-brand-900">
+      <h2 className="mt-2 font-serif text-[34px] font-medium leading-none tracking-[-0.02em] text-ink">
         {title}
       </h2>
-      <p className="mt-2 text-[12px] font-semibold text-slate-400">{subtitle}</p>
+      <p className="mt-2 text-[12px] font-semibold text-ink-3">{subtitle}</p>
     </div>
   );
 }

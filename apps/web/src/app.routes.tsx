@@ -3,11 +3,11 @@ import { Route, Routes } from 'react-router-dom';
 
 import { ROUTES } from '@leaksync/core';
 
-import { HomeScreen } from '@features/health/home-screen.tsx';
+import { HomeScreen } from '@features/health/home-screen';
 
 // Dev-only design-system gallery — lazy so it stays out of the main bundle.
 const PreviewScreen = lazy(() =>
-  import('@features/preview/screen/preview-screen.tsx').then((m) => ({ default: m.PreviewScreen })),
+  import('@features/preview/screen/preview-screen').then((m) => ({ default: m.PreviewScreen })),
 );
 
 export function AppRoutes() {

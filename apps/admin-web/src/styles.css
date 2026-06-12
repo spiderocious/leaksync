@@ -9,7 +9,7 @@ body,
 }
 
 body {
-  background: #f8fafc;
-  color: #1f2024;
-  font-family: theme('fontFamily.sans');
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
 }

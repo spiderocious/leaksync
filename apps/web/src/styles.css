@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* e-ink tokens (--paper, --ink, --moss, fonts) come from @leaksync/ui/styles.css,
+   imported in main.tsx before this file. */
+
 html,
 body,
 #root {
@@ -9,7 +12,7 @@ body,
 }
 
 body {
-  background: theme('colors.surface.50');
-  color: #1f2024;
-  font-family: theme('fontFamily.sans');
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
 }

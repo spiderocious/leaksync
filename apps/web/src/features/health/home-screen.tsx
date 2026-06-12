@@ -10,11 +10,11 @@ export function HomeScreen() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
-      <AppText variant="caption">leaksync</AppText>
-      <AppText variant="display-1" className="mt-2 text-brand-900">
+      <AppText variant="overline">leaksync</AppText>
+      <AppText variant="display" as="h1" className="mt-2 !tracking-[-0.02em] !text-[44px]">
         LeakSync
       </AppText>
-      <AppText variant="body" className="mt-4 max-w-2xl text-ink-700">
+      <AppText variant="read" className="mt-4 max-w-2xl text-ink-2">
         Share anything from your phone to your Mac, instantly. This web surface is
         the workspace home — the product lives in the desktop and mobile apps.
       </AppText>
@@ -25,12 +25,12 @@ export function HomeScreen() {
         </Link>
       </div>
 
-      <section className="mt-12 rounded-lg border border-brand-900/10 bg-white/60 p-4 text-sm">
-        <AppText variant="caption">backend health</AppText>
+      <section className="mt-12 rounded-card border border-hair bg-paper-sheet p-4 text-sm">
+        <AppText variant="overline">backend health</AppText>
         <div className="mt-2">
           <Show when={isLoading}>Checking…</Show>
           <Show when={isError}>
-            <span className="text-accent-600">unreachable — is main-backend running?</span>
+            <span className="text-warn">unreachable — is main-backend running?</span>
           </Show>
           <Show when={!!data}>
             <span>
