@@ -192,7 +192,7 @@ export function DownloadView() {
           ))}
         </div>
 
-        <p className="mt-12 text-center text-[13px] font-semibold text-[#221d3a]/45">
+        <p className="mt-24 text-center text-[13px] font-semibold text-[#221d3a]/45">
           After installing both: the Mac shows a 6-digit code, type it on the phone, done.
         </p>
       </main>
