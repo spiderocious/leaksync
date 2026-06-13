@@ -57,10 +57,35 @@ const TARGETS: DownloadTarget[] = [
   },
 ];
 
+// The one-line macOS installer: detects the right chip, installs, and clears
+// the Gatekeeper quarantine flag so the (unsigned) app opens without the
+// "LeakSync is damaged" dialog.
+const MAC_INSTALL_CMD =
+  'curl -fsSL https://raw.githubusercontent.com/spiderocious/leaksync/main/install.sh | bash';
+
 export function DownloadView() {
   const rootRef = useRef<HTMLDivElement>(null);
   const [startedKey, setStartedKey] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const timerRef = useRef<number | null>(null);
+  const copyTimerRef = useRef<number | null>(null);
+
+  const copyInstallCmd = async () => {
+    try {
+      await navigator.clipboard.writeText(MAC_INSTALL_CMD);
+    } catch {
+      // older browsers — fall back to a hidden textarea selection
+      const ta = document.createElement('textarea');
+      ta.value = MAC_INSTALL_CMD;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    if (copyTimerRef.current !== null) window.clearTimeout(copyTimerRef.current);
+    copyTimerRef.current = window.setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -88,6 +113,7 @@ export function DownloadView() {
   useEffect(() => {
     return () => {
       if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+      if (copyTimerRef.current !== null) window.clearTimeout(copyTimerRef.current);
     };
   }, []);
 
@@ -128,6 +154,46 @@ export function DownloadView() {
           <p className="mx-auto mt-5 max-w-xl text-[16px] leading-relaxed text-[#221d3a]/70 sm:text-[17px]">
             One for the Mac, one for the phone. Install the Mac one first; it shows the
             6-digit code you type into the phone.
+          </p>
+        </div>
+
+        {/* Recommended Mac install — one line, handles chip + Gatekeeper for you. */}
+        <div
+          data-dl-head
+          className="mx-auto mt-12 w-full max-w-2xl rounded-3xl border-2 border-[#221d3a]/8 bg-white p-7 shadow-[0_10px_30px_rgba(34,29,58,0.06)]"
+        >
+          <div className="flex items-center gap-2.5">
+            <span className="text-[22px]">🍎</span>
+            <h2 className="text-[17px] font-extrabold">Mac — the easy way</h2>
+            <span className="rounded-full bg-[#2b50c8]/10 px-2.5 py-1 text-[11px] font-bold text-[#2b50c8]">
+              Recommended
+            </span>
+          </div>
+          <p className="mt-2 text-[14px] leading-relaxed text-[#221d3a]/70">
+            Paste this into Terminal and press Return. It picks the right version for your
+            chip and installs LeakSync.
+          </p>
+          <div className="mt-4 flex items-stretch gap-2">
+            <code className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap rounded-xl bg-[#221d3a] px-4 py-3.5 font-mono text-[12.5px] text-[#fdf3e3]">
+              {MAC_INSTALL_CMD}
+            </code>
+            <button
+              type="button"
+              onClick={copyInstallCmd}
+              aria-label="Copy install command"
+              className="shrink-0 rounded-xl px-5 text-[13px] font-extrabold transition-transform hover:-translate-y-0.5 active:translate-y-0"
+              style={{
+                backgroundColor: copied ? '#1f9d57' : '#2b50c8',
+                color: '#ffffff',
+                boxShadow: `0 5px 0 ${copied ? '#157a41' : '#1b3aa0'}`,
+              }}
+            >
+              {copied ? 'Copied ✓' : 'Copy'}
+            </button>
+          </div>
+          <p className="mt-3 text-[12px] leading-relaxed text-[#221d3a]/45">
+            Prefer to do it by hand? Grab the <span className="font-semibold">.dmg</span> for your
+            chip below — on first open, right-click the app and choose “Open”.
           </p>
         </div>
 
